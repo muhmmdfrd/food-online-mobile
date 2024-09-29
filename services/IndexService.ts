@@ -22,8 +22,10 @@ client.interceptors.response.use(
         throw "Unathorized.";
       case "1004":
         throw "Data not found. Please recheck your data.";
+      case "4000":
+        throw "Bad request.";
       case "9999":
-        throw "Something went wrong here.";
+        throw "Something went wrong.";
       default:
         return response.data;
     }
@@ -36,7 +38,7 @@ client.interceptors.response.use(
       case undefined:
         return reject("No internet connection.");
       default:
-        return reject("Something went wrong here.");
+        return reject("Something went wrong.");
     }
   }
 );

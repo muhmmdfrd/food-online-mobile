@@ -4,54 +4,39 @@ import { useAuth } from "../context";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
+import { StorageHelper } from "@/helpers";
+import { Storage } from "@/constants/Storage";
+import { logout } from "@/services";
 
 const ProfileScreen = () => {
-  const { logout } = useAuth();
+  const { logout: removeData, code } = useAuth();
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to log out?", [
       { text: "Cancel", style: "cancel" },
       {
         text: "OK",
         onPress: async () => {
-          await logout();
-          console.log("User logged out");
+          if (code) {
+            await logout(code);
+            removeData();
+          }
         },
       },
     ]);
   };
-
-  const [bio, setBio] = useState<string>("test");
-
   const { user } = useAuth();
-
-  useEffect(() => {
-    const arr: string[] = [];
-    // if (user?.positionName) {
-    arr.push("CEO");
-    // }
-
-    // if (user?.roleName) {
-    arr.push("Sysadmin");
-    // }
-
-    const result = arr.join(" | ");
-    setBio(result);
-  }, []);
 
   return (
     <SafeAreaThemedView style={styles.container}>
       <ThemedView style={styles.profileContainer}>
-        {/* Foto Profil */}
         <Image
           source={{ uri: "https://via.placeholder.com/150" }}
           style={styles.profileImage}
         />
 
-        {/* Informasi Singkat User */}
         <ThemedText style={styles.userName}>{user?.name}</ThemedText>
-        <ThemedText style={styles.userBio}>{bio}</ThemedText>
+        <ThemedText style={styles.userBio}>{""}</ThemedText>
 
-        {/* Tombol Logout */}
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Logout</Text>
         </TouchableOpacity>

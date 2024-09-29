@@ -7,4 +7,8 @@ const auth = async (data: AuthRequest): Promise<ApiResponse<AuthResponse>> => {
   return await post("auth", data);
 };
 
-export { auth };
+const logout = async (code: string): Promise<ApiResponse<any>> => {
+  return await post("auth/logout", { code });
+};
+
+export { auth, logout };

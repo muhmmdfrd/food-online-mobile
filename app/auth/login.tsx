@@ -41,7 +41,7 @@ const Login: React.FC = () => {
         Food Online
       </ThemedText>
       <ThemedText style={styles.subHeader} type="subtitle">
-        Easily your lunch{" "}
+        Easily your lunch
       </ThemedText>
 
       <Controller

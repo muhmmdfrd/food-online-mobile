@@ -1,97 +1,90 @@
 import React, { useState } from "react";
-import { Image, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import {
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  StyleProp,
+} from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { FAB } from "react-native-paper";
 import { useAuth } from "../context";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
+import { useQuery } from "@tanstack/react-query";
+import { getMenu, getMerchant } from "@/services";
+import { PagingRequest } from "@/models/requests/PagingRequest";
+import { ApiResponse } from "@/models/responses/ApiResponse";
+import { Merchant } from "@/models/merchant";
+import { PagingResponse } from "@/models/responses/PagingResponse";
+import { Menu } from "@/models/menu";
+import { StringHelper } from "@/helpers";
+import { useThemeColor } from "@/hooks/useThemeColor";
+import { useNavigation } from "expo-router";
 
-const merchants = ["Merchant 1", "Merchant 2", "Merchant 3"];
-const menuItems = [
-  {
-    id: 1,
-    name: "Menu 1",
-    description: "Delicious food",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 2,
-    name: "Menu 2",
-    description: "Yummy drink",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 3,
-    name: "Menu 3",
-    description: "Tasty snack",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 4,
-    name: "Menu 1",
-    description: "Delicious food",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 5,
-    name: "Menu 2",
-    description: "Yummy drink",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 6,
-    name: "Menu 3",
-    description: "Tasty snack",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 7,
-    name: "Menu 1",
-    description: "Delicious food",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 8,
-    name: "Menu 2",
-    description: "Yummy drink",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 9,
-    name: "Menu 3",
-    description: "Tasty snack",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 10,
-    name: "Menu 1",
-    description: "Delicious food",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 11,
-    name: "Menu 2",
-    description: "Yummy drink",
-    image: "https://via.placeholder.com/100",
-  },
-  {
-    id: 12,
-    name: "Menu 3",
-    description: "Tasty snack",
-    image: "https://via.placeholder.com/100",
-  },
-];
+const page: PagingRequest = {
+  current: 1,
+  size: 100,
+  sortName: "id",
+  sortDir: "asc",
+};
+
+const menuPage: PagingRequest & { merchantId?: number } = {
+  current: 1,
+  size: 100,
+  sortName: "id",
+  sortDir: "asc",
+};
 
 const HomeScreen = () => {
-  const [selectedMerchant, setSelectedMerchant] = useState(merchants[0]);
+  const { data: merchants = [], error } = useQuery<
+    ApiResponse<PagingResponse<Merchant[]>>,
+    string,
+    Merchant[]
+  >({
+    queryKey: ["merchant"],
+    queryFn: async () => await getMerchant(page),
+    select: (response) => {
+      return response.data.data;
+    },
+  });
+
+  const { data: menus = [] } = useQuery<
+    ApiResponse<PagingResponse<Menu[]>>,
+    string,
+    Menu[]
+  >({
+    queryKey: ["menu", menuPage],
+    queryFn: async () => await getMenu(menuPage),
+    select: (response) => {
+      return response.data.data;
+    },
+  });
+
+  const [selectedMerchant, setSelectedMerchant] = useState<Merchant>();
+  const [defaultMerchant] = useState<Merchant>({
+    id: 0,
+    name: "Select merchant",
+  });
 
   const { user } = useAuth();
+  const navigation = useNavigation();
+
+  const color = useThemeColor({ light: "black", dark: "white" }, "text");
+
+  const getPickerStyles = (color: string): StyleProp<any> => {
+    return {
+      height: 50,
+      width: "100%",
+      marginBottom: 20,
+      color: color,
+    };
+  };
 
   return (
     <SafeAreaThemedView style={styles.safeArea}>
       <ThemedView style={styles.container}>
-        {/* Header */}
         <ThemedView style={styles.header}>
           <ThemedView style={styles.profile}>
             <Image
@@ -109,22 +102,41 @@ const HomeScreen = () => {
 
         <Picker
           selectedValue={selectedMerchant}
-          style={styles.picker}
-          onValueChange={(itemValue) => setSelectedMerchant(itemValue)}
+          style={getPickerStyles(color)}
+          onValueChange={(itemValue) => {
+            setSelectedMerchant(itemValue);
+
+            if (itemValue !== defaultMerchant) {
+              menuPage.merchantId = itemValue.id;
+            } else {
+              menuPage.merchantId = undefined;
+            }
+          }}
         >
-          {merchants.map((merchant) => (
-            <Picker.Item label={merchant} value={merchant} key={merchant} />
+          <Picker.Item label={defaultMerchant.name} value={defaultMerchant} />
+          {merchants?.map((merchant) => (
+            <Picker.Item
+              label={merchant.name}
+              value={merchant}
+              key={merchant.id}
+            />
           ))}
         </Picker>
 
         <ScrollView style={styles.menuList}>
-          {menuItems.map((item) => (
+          {menus.map((item) => (
             <ThemedView key={item.id} style={styles.menuItem}>
-              <Image source={{ uri: item.image }} style={styles.menuImage} />
+              <Image
+                source={{ uri: "https://via.placeholder.com/100" }}
+                style={styles.menuImage}
+              />
               <ThemedView style={styles.menuInfo}>
                 <ThemedText style={styles.menuName}>{item.name}</ThemedText>
+                <ThemedText style={styles.menuPrice}>
+                  {StringHelper.currencyFormat(item.price)}
+                </ThemedText>
                 <ThemedText style={styles.menuDescription}>
-                  {item.description}
+                  {item.merchantName}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
@@ -135,7 +147,8 @@ const HomeScreen = () => {
           color="black"
           style={styles.fab}
           icon="cart"
-          onPress={() => console.log("Floating action button pressed")}
+          // @ts-ignore
+          onPress={() => navigation.navigate("cart/cart")}
         />
       </ThemedView>
     </SafeAreaThemedView>
@@ -145,7 +158,6 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   container: {
     flex: 1,
@@ -182,12 +194,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#ccc",
     marginVertical: 10,
   },
-  picker: {
-    height: 50,
-    width: "100%",
-    marginBottom: 20,
-    color: "red",
-  },
   menuList: {
     flex: 1,
   },
@@ -211,6 +217,39 @@ const styles = StyleSheet.create({
   menuDescription: {
     fontSize: 14,
     color: "#666",
+  },
+  menuPrice: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  addButton: {
+    backgroundColor: "#6200ea",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  qtyControl: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  qtyButton: {
+    backgroundColor: "#6200ea",
+    padding: 10,
+    borderRadius: 5,
+    marginHorizontal: 5,
+  },
+  qtyButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  qtyText: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
   fab: {
     position: "absolute",

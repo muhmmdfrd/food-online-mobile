@@ -1,3 +1,5 @@
-import { auth } from "./AuthService";
+import { auth, logout } from "./AuthService";
+import { getMenu } from "./MenuServices";
+import { getMerchant } from "./MerchantService";
 
-export { auth };
+export { auth, getMerchant, getMenu, logout };

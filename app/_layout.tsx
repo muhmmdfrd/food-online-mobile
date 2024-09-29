@@ -16,20 +16,26 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 SplashScreen.preventAutoHideAsync();
 
 function AppRoutes() {
-  const { isAuthenticated } = useAuth();
+  const { authorized } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (authorized) {
       router.replace("/(tabs)");
     } else {
       router.replace("/auth/login");
     }
-  }, [isAuthenticated]);
+  }, [authorized]);
 
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="auth" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="cart/cart"
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
