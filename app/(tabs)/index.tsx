@@ -5,10 +5,12 @@ import {
   ScrollView,
   StyleSheet,
   StyleProp,
+  TouchableNativeFeedback,
+  View,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { FAB } from "react-native-paper";
-import { useAuth } from "../context";
+import { useAuth, useCart } from "../context";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
@@ -21,7 +23,8 @@ import { PagingResponse } from "@/models/responses/PagingResponse";
 import { Menu } from "@/models/menu";
 import { StringHelper } from "@/helpers";
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { useNavigation } from "expo-router";
+import { router } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const page: PagingRequest = {
   current: 1,
@@ -38,7 +41,7 @@ const menuPage: PagingRequest & { merchantId?: number } = {
 };
 
 const HomeScreen = () => {
-  const { data: merchants = [], error } = useQuery<
+  const { data: merchants = [] } = useQuery<
     ApiResponse<PagingResponse<Merchant[]>>,
     string,
     Merchant[]
@@ -69,7 +72,7 @@ const HomeScreen = () => {
   });
 
   const { user } = useAuth();
-  const navigation = useNavigation();
+  const { cartItems } = useCart();
 
   const color = useThemeColor({ light: "black", dark: "white" }, "text");
 
@@ -80,6 +83,11 @@ const HomeScreen = () => {
       marginBottom: 20,
       color: color,
     };
+  };
+
+  const getItemQuantityInCart = (menuId: number) => {
+    const itemInCart = cartItems.find((item) => item.menuId === menuId);
+    return itemInCart ? itemInCart.qty : 0;
   };
 
   return (
@@ -94,7 +102,9 @@ const HomeScreen = () => {
             <ThemedText style={styles.profileName}>{user?.name}</ThemedText>
           </ThemedView>
           <TouchableOpacity style={styles.notificationButton}>
-            <ThemedText style={styles.notificationText}>🔔</ThemedText>
+            <ThemedText style={styles.notificationText}>
+              <MaterialCommunityIcons name="bell" size={24} />
+            </ThemedText>
           </TouchableOpacity>
         </ThemedView>
 
@@ -123,33 +133,67 @@ const HomeScreen = () => {
           ))}
         </Picker>
 
-        <ScrollView style={styles.menuList}>
-          {menus.map((item) => (
-            <ThemedView key={item.id} style={styles.menuItem}>
-              <Image
-                source={{ uri: "https://via.placeholder.com/100" }}
-                style={styles.menuImage}
-              />
-              <ThemedView style={styles.menuInfo}>
-                <ThemedText style={styles.menuName}>{item.name}</ThemedText>
-                <ThemedText style={styles.menuPrice}>
-                  {StringHelper.currencyFormat(item.price)}
-                </ThemedText>
-                <ThemedText style={styles.menuDescription}>
-                  {item.merchantName}
-                </ThemedText>
-              </ThemedView>
-            </ThemedView>
-          ))}
+        <ScrollView
+          style={styles.menuList}
+          showsVerticalScrollIndicator={false}
+        >
+          {menus.map((item) => {
+            const itemQuantity = getItemQuantityInCart(item.id);
+            return (
+              <TouchableNativeFeedback
+                key={item.id}
+                onPress={() =>
+                  router.push({
+                    pathname: "/menu/detail",
+                    params: {
+                      menuId: item.id,
+                    },
+                  })
+                }
+              >
+                <ThemedView style={styles.menuItem}>
+                  <Image
+                    source={{ uri: "https://via.placeholder.com/100" }}
+                    style={styles.menuImage}
+                  />
+                  <ThemedView style={styles.menuInfo}>
+                    <ThemedText style={styles.menuName}>{item.name}</ThemedText>
+                    <ThemedText style={styles.menuPrice}>
+                      {StringHelper.currencyFormat(item.price)}
+                    </ThemedText>
+                    <ThemedText style={styles.menuDescription}>
+                      {item.merchantName}
+                    </ThemedText>
+                  </ThemedView>
+                  {itemQuantity > 0 && (
+                    <View style={styles.quantityIndicator}>
+                      <ThemedText style={styles.qtyText}>
+                        {itemQuantity}
+                      </ThemedText>
+                    </View>
+                  )}
+                </ThemedView>
+              </TouchableNativeFeedback>
+            );
+          })}
         </ScrollView>
 
-        <FAB
-          color="black"
-          style={styles.fab}
-          icon="cart"
-          // @ts-ignore
-          onPress={() => navigation.navigate("cart/cart")}
-        />
+        {cartItems.length <= 0 ? (
+          <FAB
+            color="black"
+            style={styles.fab}
+            icon="cart"
+            onPress={() => router.push("/cart/cart")}
+          />
+        ) : (
+          <FAB
+            color="black"
+            label={cartItems.length.toString()}
+            style={styles.fab}
+            icon="cart"
+            onPress={() => router.push("/cart/cart")}
+          />
+        )}
       </ThemedView>
     </SafeAreaThemedView>
   );
@@ -200,6 +244,7 @@ const styles = StyleSheet.create({
   menuItem: {
     flexDirection: "row",
     marginBottom: 15,
+    position: "relative",
   },
   menuImage: {
     width: 100,
@@ -209,6 +254,7 @@ const styles = StyleSheet.create({
   menuInfo: {
     marginLeft: 10,
     justifyContent: "center",
+    flex: 1,
   },
   menuName: {
     fontSize: 16,
@@ -222,33 +268,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 5,
   },
-  addButton: {
-    backgroundColor: "#6200ea",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-  },
-  addButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  qtyControl: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  qtyButton: {
-    backgroundColor: "#6200ea",
-    padding: 10,
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  qtyButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+  quantityIndicator: {
+    position: "absolute",
+    right: 10,
+    top: "50%",
+    transform: [{ translateY: -10 }],
+    backgroundColor: "green",
+    borderRadius: 50,
+    padding: 8,
   },
   qtyText: {
-    fontSize: 18,
+    color: "white",
+    fontSize: 14,
     fontWeight: "bold",
   },
   fab: {
@@ -257,6 +288,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: "green",
+    fontSize: 16,
   },
 });
 

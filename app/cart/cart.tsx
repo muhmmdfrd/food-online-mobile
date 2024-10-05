@@ -1,48 +1,99 @@
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import React, { useState } from "react";
-import { Image, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { StringHelper } from "@/helpers";
+import { calculate } from "@/services";
+import { useQuery } from "@tanstack/react-query";
+import React from "react";
+import {
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  StyleSheet,
+  RefreshControl,
+  useColorScheme,
+} from "react-native";
+import { useCart } from "../context";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
 
 const CartScreen = () => {
-  const [totalPrice, setTotalPrice] = useState(0);
+  const { cartItems } = useCart();
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["calculate", cartItems],
+    queryFn: async () => await calculate(cartItems),
+    select: (data) => data.data,
+  });
+
+  const scheme = useColorScheme();
+
+  if (cartItems.length <= 0) {
+    return (
+      <SafeAreaThemedView>
+        <ThemedView
+          style={{
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <MaterialCommunityIcons
+            name="food-off"
+            size={108}
+            color={Colors[scheme ?? "light"].text}
+          />
+          <ThemedText style={{ marginTop: 8 }}>No items found</ThemedText>
+        </ThemedView>
+      </SafeAreaThemedView>
+    );
+  }
 
   return (
     <SafeAreaThemedView style={styles.safeArea}>
       <ThemedView style={styles.container}>
         <ThemedText style={styles.headerText}>Your Cart</ThemedText>
 
-        {/* Daftar Item di Keranjang */}
-        <ScrollView style={styles.cartList}>
-          <ThemedView style={styles.cartItem}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/50" }}
-              style={styles.cartImage}
-            />
-            <ThemedView style={styles.cartInfo}>
-              <ThemedText style={styles.cartName}>{"item.name"}</ThemedText>
-              <ThemedText style={styles.cartPrice}>
-                {"item.qty"} x {"item.price"}
-              </ThemedText>
-              <ThemedText style={styles.cartTotal}>Total: 2 Juta</ThemedText>
-            </ThemedView>
-          </ThemedView>
+        <ScrollView
+          style={styles.cartList}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+          }
+        >
+          {isLoading ? (
+            <ThemedText>Loading...</ThemedText>
+          ) : (
+            data?.items.map((item) => {
+              return (
+                <ThemedView key={item.menuName} style={styles.cartItem}>
+                  <Image
+                    source={{ uri: "https://via.placeholder.com/50" }}
+                    style={styles.cartImage}
+                  />
+                  <ThemedView style={styles.cartInfo}>
+                    <ThemedText style={styles.cartName}>
+                      {item.menuName}
+                    </ThemedText>
+                    <ThemedText style={styles.cartPrice}>
+                      {item.qty} pcs
+                    </ThemedText>
+                    <ThemedText style={styles.cartPrice}>
+                      {StringHelper.currencyFormat(item.total)}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              );
+            })
+          )}
         </ScrollView>
 
-        {/* Total Harga */}
-        <ThemedView style={styles.totalContainer}>
-          <ThemedText style={styles.totalText}>
-            Total to Pay: ${totalPrice}
-          </ThemedText>
-        </ThemedView>
-
-        {/* Tombol Konfirmasi Pesanan */}
         <TouchableOpacity
           style={styles.confirmButton}
           onPress={() => alert("Order Confirmed!")}
         >
           <ThemedText style={styles.confirmButtonText}>
-            Confirm Order
+            Order {StringHelper.currencyFormat(data?.grandTotal ?? 0)}
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>
@@ -101,7 +152,6 @@ const styles = StyleSheet.create({
     marginVertical: 20,
     padding: 15,
     borderRadius: 5,
-    backgroundColor: "#f0f0f0",
   },
   totalText: {
     fontSize: 20,

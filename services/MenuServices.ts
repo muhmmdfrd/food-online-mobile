@@ -15,4 +15,8 @@ const getMenu = async (
   return resp;
 };
 
-export { getMenu };
+const getMenuById = (id: number): Promise<ApiResponse<Menu>> => {
+  return get(`menus/${id}`);
+};
+
+export { getMenu, getMenuById };

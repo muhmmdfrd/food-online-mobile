@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "524522615509",
+    "project_id": "bithubby-notifier",
+    "storage_bucket": "bithubby-notifier.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:524522615509:android:94eb91116e02597eaae85c",
+        "android_client_info": {
+          "package_name": "com.telkom.food_online"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "524522615509-ntcdv1hd0lp9h656mb3ih16mgoaqedkt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdmZCmCdrmim_otY_Jk7W3cCDHWtD-ul4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "524522615509-ntcdv1hd0lp9h656mb3ih16mgoaqedkt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
