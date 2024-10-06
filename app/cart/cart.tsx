@@ -3,7 +3,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { StringHelper } from "@/helpers";
 import { calculate } from "@/services";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import {
   Image,
@@ -12,13 +12,21 @@ import {
   StyleSheet,
   RefreshControl,
   useColorScheme,
+  Alert,
 } from "react-native";
 import { useCart } from "../context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import { ApiResponse } from "@/models/responses/ApiResponse";
+import { OrderDetailRequest } from "@/models/requests/OrderDetailRequest";
+import { createOrder } from "@/services/OrderService";
+import { Response } from "@/constants/Response";
+import { router } from "expo-router";
 
 const CartScreen = () => {
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
+
+  const scheme = useColorScheme();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["calculate", cartItems],
@@ -26,7 +34,40 @@ const CartScreen = () => {
     select: (data) => data.data,
   });
 
-  const scheme = useColorScheme();
+  const mutation = useMutation<ApiResponse<any>, string, OrderDetailRequest>({
+    mutationFn: createOrder,
+    onSuccess: (response) => {
+      if (response.code === Response.successCode) {
+        Alert.alert("Sucess", response.message);
+        clearCart();
+        router.back();
+        return;
+      }
+
+      Alert.alert("Error", response.message);
+    },
+    onError: (err: string) => {
+      Alert.alert("Failed", err ?? "Something went wrong!");
+    },
+  });
+
+  const handleOrder = () => {
+    Alert.alert("Confirmation", "Are you sure want to create this order?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: () => {
+          const request: OrderDetailRequest = {
+            details: cartItems,
+          };
+          mutation.mutate(request);
+        },
+      },
+    ]);
+  };
 
   if (cartItems.length <= 0) {
     return (
@@ -89,11 +130,14 @@ const CartScreen = () => {
         </ScrollView>
 
         <TouchableOpacity
+          disabled={mutation.isPending}
           style={styles.confirmButton}
-          onPress={() => alert("Order Confirmed!")}
+          onPress={handleOrder}
         >
           <ThemedText style={styles.confirmButtonText}>
-            Order {StringHelper.currencyFormat(data?.grandTotal ?? 0)}
+            {mutation.isPending
+              ? "Creating order..."
+              : `Order ${StringHelper.currencyFormat(data?.grandTotal ?? 0)}`}
           </ThemedText>
         </TouchableOpacity>
       </ThemedView>

@@ -28,6 +28,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="history"
+        options={{
+          title: "My Orders",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? "bag" : "bag-outline"} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",

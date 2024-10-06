@@ -1,6 +1,4 @@
 export type OrderDetailRequest = {
-  orderId: number;
-  userId: number;
   details: OrderDetailItem[];
 };
 

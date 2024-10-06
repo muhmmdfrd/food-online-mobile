@@ -7,6 +7,8 @@ import {
   StyleProp,
   TouchableNativeFeedback,
   View,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { FAB } from "react-native-paper";
@@ -53,11 +55,12 @@ const HomeScreen = () => {
     },
   });
 
-  const { data: menus = [] } = useQuery<
-    ApiResponse<PagingResponse<Menu[]>>,
-    string,
-    Menu[]
-  >({
+  const {
+    data: menus = [],
+    isLoading: loadingMenu,
+    isError: isErrorMenu,
+    error: errorMenu,
+  } = useQuery<ApiResponse<PagingResponse<Menu[]>>, string, Menu[]>({
     queryKey: ["menu", menuPage],
     queryFn: async () => await getMenu(menuPage),
     select: (response) => {
@@ -89,6 +92,10 @@ const HomeScreen = () => {
     const itemInCart = cartItems.find((item) => item.menuId === menuId);
     return itemInCart ? itemInCart.qty : 0;
   };
+
+  if (isErrorMenu) {
+    Alert.alert("Error", errorMenu ?? "Error while fetching menu.");
+  }
 
   return (
     <SafeAreaThemedView style={styles.safeArea}>
@@ -133,50 +140,64 @@ const HomeScreen = () => {
           ))}
         </Picker>
 
-        <ScrollView
-          style={styles.menuList}
-          showsVerticalScrollIndicator={false}
-        >
-          {menus.map((item) => {
-            const itemQuantity = getItemQuantityInCart(item.id);
-            return (
-              <TouchableNativeFeedback
-                key={item.id}
-                onPress={() =>
-                  router.push({
-                    pathname: "/menu/detail",
-                    params: {
-                      menuId: item.id,
-                    },
-                  })
-                }
-              >
-                <ThemedView style={styles.menuItem}>
-                  <Image
-                    source={{ uri: "https://via.placeholder.com/100" }}
-                    style={styles.menuImage}
-                  />
-                  <ThemedView style={styles.menuInfo}>
-                    <ThemedText style={styles.menuName}>{item.name}</ThemedText>
-                    <ThemedText style={styles.menuPrice}>
-                      {StringHelper.currencyFormat(item.price)}
-                    </ThemedText>
-                    <ThemedText style={styles.menuDescription}>
-                      {item.merchantName}
-                    </ThemedText>
-                  </ThemedView>
-                  {itemQuantity > 0 && (
-                    <View style={styles.quantityIndicator}>
-                      <ThemedText style={styles.qtyText}>
-                        {itemQuantity}
+        {loadingMenu ? (
+          <ThemedView
+            style={{
+              height: "75%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator size={52} />
+          </ThemedView>
+        ) : (
+          <ScrollView
+            style={styles.menuList}
+            showsVerticalScrollIndicator={false}
+          >
+            {menus.map((item) => {
+              const itemQuantity = getItemQuantityInCart(item.id);
+              return (
+                <TouchableNativeFeedback
+                  key={item.id}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/menu/detail",
+                      params: {
+                        menuId: item.id,
+                      },
+                    })
+                  }
+                >
+                  <ThemedView style={styles.menuItem}>
+                    <Image
+                      source={{ uri: "https://via.placeholder.com/100" }}
+                      style={styles.menuImage}
+                    />
+                    <ThemedView style={styles.menuInfo}>
+                      <ThemedText style={styles.menuName}>
+                        {item.name}
                       </ThemedText>
-                    </View>
-                  )}
-                </ThemedView>
-              </TouchableNativeFeedback>
-            );
-          })}
-        </ScrollView>
+                      <ThemedText style={styles.menuPrice}>
+                        {StringHelper.currencyFormat(item.price)}
+                      </ThemedText>
+                      <ThemedText style={styles.menuDescription}>
+                        {item.merchantName}
+                      </ThemedText>
+                    </ThemedView>
+                    {itemQuantity > 0 && (
+                      <View style={styles.quantityIndicator}>
+                        <ThemedText style={styles.qtyText}>
+                          {itemQuantity}
+                        </ThemedText>
+                      </View>
+                    )}
+                  </ThemedView>
+                </TouchableNativeFeedback>
+              );
+            })}
+          </ScrollView>
+        )}
 
         {cartItems.length <= 0 ? (
           <FAB

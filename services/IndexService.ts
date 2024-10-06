@@ -10,7 +10,9 @@ const client = axios.create({
 client.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   const token = await AuthHelper.getToken();
   config.responseType = "json";
-  config.headers.Authorization = `Bearer ${token}`;
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
   return config;
 });
