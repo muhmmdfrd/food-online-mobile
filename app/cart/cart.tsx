@@ -68,6 +68,7 @@ const CartScreen = () => {
         text: "OK",
         onPress: () => {
           const request: OrderDetailRequest = {
+            paymentAmount: cash,
             details: cartItems,
           };
           mutation.mutate(request);

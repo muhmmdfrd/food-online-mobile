@@ -1,4 +1,5 @@
 export type OrderDetailRequest = {
+  paymentAmount: number;
   details: OrderDetailItem[];
 };
 
