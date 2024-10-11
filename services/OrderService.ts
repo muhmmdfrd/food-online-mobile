@@ -3,7 +3,7 @@ import {
   OrderDetailRequest,
 } from "@/models/requests/OrderDetailRequest";
 import { ApiResponse } from "@/models/responses/ApiResponse";
-import { post } from "./IndexService";
+import { get, post } from "./IndexService";
 import { CalculateResponse } from "@/models/responses/CalculateResponse";
 
 const calculate = (
@@ -18,4 +18,8 @@ const createOrder = (
   return post("order-details", request);
 };
 
-export { calculate, createOrder };
+const getMyOrders = (userId: number): Promise<ApiResponse<OrderResponse[]>> => {
+  return get(`orders/user/${userId}`);
+};
+
+export { calculate, createOrder, getMyOrders };

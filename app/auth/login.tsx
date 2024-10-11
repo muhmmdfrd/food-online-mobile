@@ -1,5 +1,11 @@
 import React from "react";
-import { TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  useColorScheme,
+} from "react-native";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import { AuthRequest } from "@/models/requests/AuthRequest";
@@ -7,9 +13,9 @@ import { ApiResponse } from "@/models/responses/ApiResponse";
 import { AuthResponse } from "@/models/responses/AuthResponse";
 import { auth } from "@/services";
 import { useAuth } from "../context";
-import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { Colors } from "@/constants/Colors";
 
 const Login: React.FC = () => {
   const {
@@ -31,16 +37,23 @@ const Login: React.FC = () => {
     },
   });
 
+  const scheme = useColorScheme();
+  const primaryColor = Colors[scheme ?? "light"].primary;
+  const greyColor = Colors[scheme ?? "light"].grey;
+
   const onSubmit: SubmitHandler<AuthRequest> = (data) => {
     mutation.mutate(data);
   };
 
   return (
     <ThemedView style={styles.container}>
-      <ThemedText style={styles.header} type="title">
-        Food Online
+      <ThemedText style={[styles.header, { color: primaryColor }]} type="title">
+        DapoerGo.
       </ThemedText>
-      <ThemedText style={styles.subHeader} type="subtitle">
+      <ThemedText
+        style={[styles.subHeader, { color: greyColor }]}
+        type="subtitle"
+      >
         Easily your lunch
       </ThemedText>
 
@@ -51,8 +64,9 @@ const Login: React.FC = () => {
         rules={{ required: "Username is required" }}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            style={styles.input}
+            style={[styles.input, { borderColor: primaryColor }]}
             placeholder="Username"
+            placeholderTextColor={greyColor}
             value={value}
             onChangeText={onChange}
             autoCapitalize="none"
@@ -72,8 +86,9 @@ const Login: React.FC = () => {
         rules={{ required: "Password is required" }}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            style={styles.input}
+            style={[styles.input, { borderColor: primaryColor }]}
             placeholder="Password"
+            placeholderTextColor={greyColor}
             value={value}
             onChangeText={onChange}
             secureTextEntry
@@ -86,13 +101,18 @@ const Login: React.FC = () => {
         </ThemedText>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: primaryColor }]}
+        onPress={handleSubmit(onSubmit)}
+      >
         <ThemedText style={styles.buttonText}>
           {mutation.isPending ? "Logging in..." : "Login"}
         </ThemedText>
       </TouchableOpacity>
 
-      <ThemedText style={styles.footer}>Food Online App - v1.0.0</ThemedText>
+      <ThemedText style={[styles.footer, { color: greyColor }]}>
+        DapoerGo - v1.0.0
+      </ThemedText>
     </ThemedView>
   );
 };
@@ -104,32 +124,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   header: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 5,
+    fontFamily: "Crimson-Text",
   },
   subHeader: {
-    fontSize: 18,
-    color: "#777",
+    fontSize: 16,
     textAlign: "center",
     marginBottom: 20,
   },
   input: {
     height: 50,
-    borderColor: "#ccc",
     borderWidth: 1,
     borderRadius: 8,
     marginBottom: 10,
     paddingHorizontal: 15,
-    backgroundColor: "#fff",
   },
   button: {
-    backgroundColor: "#1e90ff",
     paddingVertical: 15,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
+    fontFamily: "Inter",
   },
   buttonText: {
     color: "#fff",
@@ -139,7 +157,6 @@ const styles = StyleSheet.create({
   footer: {
     marginTop: 40,
     fontSize: 14,
-    color: "#aaa",
     textAlign: "center",
   },
   errorText: {

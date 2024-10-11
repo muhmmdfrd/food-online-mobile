@@ -1,3 +1,4 @@
+import { Response } from "@/constants/Response";
 import { AuthHelper } from "@/helpers";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import Config from "react-native-config";
@@ -11,6 +12,7 @@ client.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
   const token = await AuthHelper.getToken();
   config.responseType = "json";
   if (token) {
+    // console.log(token);
     config.headers.Authorization = `Bearer ${token}`;
   }
 
@@ -20,10 +22,10 @@ client.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
 client.interceptors.response.use(
   (response) => {
     switch (response.data.code) {
-      case "1001":
+      case Response.unauthorizedCode:
         throw "Unathorized.";
       case "1004":
-        throw "Data not found. Please recheck your data.";
+        throw "Data not found.";
       case "4000":
         throw "Bad request.";
       case "9999":

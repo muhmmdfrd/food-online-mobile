@@ -4,7 +4,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { StringHelper } from "@/helpers";
 import { calculate } from "@/services";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Image,
   TouchableOpacity,
@@ -13,6 +13,7 @@ import {
   RefreshControl,
   useColorScheme,
   Alert,
+  TextInput,
 } from "react-native";
 import { useCart } from "../context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -22,9 +23,15 @@ import { OrderDetailRequest } from "@/models/requests/OrderDetailRequest";
 import { createOrder } from "@/services/OrderService";
 import { Response } from "@/constants/Response";
 import { router } from "expo-router";
+import { Button, Divider } from "react-native-paper";
 
 const CartScreen = () => {
+  const [cash, setCash] = useState<number>(0);
   const { cartItems, clearCart } = useCart();
+
+  useEffect(() => {
+    calculateChange(data?.grandTotal ?? 0);
+  }, [cash]);
 
   const scheme = useColorScheme();
 
@@ -67,6 +74,31 @@ const CartScreen = () => {
         },
       },
     ]);
+  };
+
+  const calculateChange = (total: number): number => {
+    const result = cash - total;
+    if (result <= 0) {
+      return 0;
+    }
+
+    return result;
+  };
+
+  const isButtonDisabled = (): boolean => {
+    if (mutation.isPending) {
+      return true;
+    }
+
+    if (cash <= 0) {
+      return true;
+    }
+
+    if (cash < (data?.grandTotal ?? 0)) {
+      return true;
+    }
+
+    return calculateChange(data?.grandTotal ?? 0) < 0;
   };
 
   if (cartItems.length <= 0) {
@@ -129,9 +161,48 @@ const CartScreen = () => {
           )}
         </ScrollView>
 
-        <TouchableOpacity
-          disabled={mutation.isPending}
-          style={styles.confirmButton}
+        <Divider />
+        <ThemedView style={styles.containerPayment}>
+          <ThemedView style={styles.row}>
+            <ThemedText style={[styles.text]}>Payment</ThemedText>
+            <ThemedText style={styles.text}>Cash</ThemedText>
+          </ThemedView>
+
+          <ThemedView style={styles.row}>
+            <ThemedText style={styles.text}>Amount Paid</ThemedText>
+            <ThemedView style={styles.row}>
+              <ThemedText style={styles.text}>
+                {StringHelper.currencyFormat(cash)}
+              </ThemedText>
+              <MaterialCommunityIcons
+                name="pen"
+                size={20}
+                style={{ marginStart: 8 }}
+                onPress={() => setCash(52961)}
+              />
+            </ThemedView>
+          </ThemedView>
+
+          <ThemedView style={styles.row}>
+            <ThemedText style={styles.text}>Change</ThemedText>
+            <ThemedText style={styles.text}>
+              {StringHelper.currencyFormat(
+                calculateChange(data?.grandTotal ?? 0)
+              )}
+            </ThemedText>
+          </ThemedView>
+        </ThemedView>
+
+        <Button
+          disabled={isButtonDisabled()}
+          style={[
+            styles.confirmButton,
+            {
+              backgroundColor: isButtonDisabled()
+                ? "gray"
+                : Colors[scheme ?? "light"].primary,
+            },
+          ]}
           onPress={handleOrder}
         >
           <ThemedText style={styles.confirmButtonText}>
@@ -139,7 +210,7 @@ const CartScreen = () => {
               ? "Creating order..."
               : `Order ${StringHelper.currencyFormat(data?.grandTotal ?? 0)}`}
           </ThemedText>
-        </TouchableOpacity>
+        </Button>
       </ThemedView>
     </SafeAreaThemedView>
   );
@@ -203,8 +274,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   confirmButton: {
-    backgroundColor: "#6200ea",
-    paddingVertical: 15,
+    paddingVertical: 8,
     borderRadius: 5,
   },
   confirmButtonText: {
@@ -212,6 +282,25 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     fontSize: 18,
+  },
+  row: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 6,
+  },
+  text: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "black",
+  },
+  icon: {
+    width: 16,
+    height: 16,
+    marginLeft: 5,
+  },
+  containerPayment: {
+    padding: 16,
   },
 });
 

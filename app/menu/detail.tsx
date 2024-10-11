@@ -3,9 +3,9 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
   ActivityIndicator,
   Alert,
+  useColorScheme,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
@@ -19,6 +19,8 @@ import { getMenuById } from "@/services";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { useCart } from "@/app/context/CartContext";
 import { OrderDetailItem } from "@/models/requests/OrderDetailRequest";
+import { Divider } from "react-native-paper";
+import { Colors } from "@/constants/Colors";
 
 const MenuDetailScreen = () => {
   const [quantity, setQuantity] = useState<number>(1);
@@ -27,6 +29,9 @@ const MenuDetailScreen = () => {
   const { menuId } = useLocalSearchParams();
   const { addToCart, cartItems, updateCartItemQuantity, removeFromCart } =
     useCart();
+
+  const scheme = useColorScheme();
+  const primaryColor = Colors[scheme ?? "light"].primary;
 
   useEffect(() => {
     const existing = cartItems.find((q) => q.menuId === +menuId);
@@ -98,6 +103,7 @@ const MenuDetailScreen = () => {
 
   if (isError) {
     Alert.alert("Error", error ?? "Something went wrong");
+    return;
   }
 
   return (
@@ -113,24 +119,45 @@ const MenuDetailScreen = () => {
       >
         <ThemedText style={styles.menuName}>{item?.name ?? ""}</ThemedText>
         <ThemedView style={styles.priceContainer}>
-          <ThemedView style={styles.priceWrapper}>
-            <ThemedText style={styles.price}>
-              {StringHelper.currencyFormat(item?.price ?? 0)}
-            </ThemedText>
-          </ThemedView>
+          <ThemedText style={styles.price}>
+            {StringHelper.currencyFormat(item?.price ?? 0)}
+          </ThemedText>
         </ThemedView>
-        <ThemedText style={styles.description}>
-          {item?.merchantName ?? ""}
+        <ThemedText style={styles.merchant}>{item?.merchantName}</ThemedText>
+        <Divider />
+        <ThemedText style={{ marginBottom: 24 }}>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
+          fringilla ante at ipsum convallis, a molestie lacus ultrices. Sed
+          placerat, felis et efficitur vehicula, libero mauris suscipit nulla,
+          imperdiet rutrum magna metus laoreet risus. Nam gravida, magna at
+          tempus pharetra, odio lorem tristique dui, ac tempus diam dolor eget
+          risus. Suspendisse pretium ornare urna sit amet hendrerit. Aliquam
+          erat volutpat. Vestibulum eu sodales tellus, id rutrum felis. Morbi
+          venenatis enim velit, sed commodo odio rutrum vel. Fusce facilisis et
+          enim non commodo. Proin eget sapien lacinia, dignissim est sit amet,
+          tincidunt turpis. Fusce ut elementum leo. Fusce arcu justo, efficitur
+          eget ante vel, dictum malesuada enim.
         </ThemedText>
+        <ThemedView style={styles.priceWrapper}>
+          <ThemedText style={styles.price}>
+            {StringHelper.currencyFormat(item?.price ?? 0)}
+          </ThemedText>
+        </ThemedView>
       </ParallaxScrollView>
 
       <ThemedView style={styles.addButtonContainer}>
         <ThemedView style={styles.qtyControl}>
-          <TouchableOpacity style={styles.qtyButton} onPress={decreaseQuantity}>
+          <TouchableOpacity
+            style={[styles.qtyButton, { backgroundColor: primaryColor }]}
+            onPress={decreaseQuantity}
+          >
             <ThemedText style={styles.qtyButtonText}>-</ThemedText>
           </TouchableOpacity>
           <ThemedText style={styles.qtyText}>{quantity}</ThemedText>
-          <TouchableOpacity style={styles.qtyButton} onPress={increaseQuantity}>
+          <TouchableOpacity
+            style={[styles.qtyButton, { backgroundColor: primaryColor }]}
+            onPress={increaseQuantity}
+          >
             <ThemedText style={styles.qtyButtonText}>+</ThemedText>
           </TouchableOpacity>
         </ThemedView>
@@ -142,7 +169,10 @@ const MenuDetailScreen = () => {
             {<ThemedText style={styles.addButtonText}>Remove</ThemedText>}
           </TouchableOpacity>
         ) : (
-          <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
+          <TouchableOpacity
+            style={[styles.addButton, { backgroundColor: primaryColor }]}
+            onPress={handleAddToCart}
+          >
             {
               <ThemedText style={styles.addButtonText}>
                 Add to Cart - {calculatePrice()}
@@ -172,13 +202,12 @@ const styles = StyleSheet.create({
   menuName: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 10,
   },
   priceContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 4,
   },
   priceWrapper: {
     flexDirection: "row",
@@ -188,25 +217,27 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
-  description: {
+  merchant: {
     fontSize: 16,
-    marginBottom: 20,
   },
   qtyControl: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginVertical: 16,
   },
   qtyButton: {
-    backgroundColor: "#28a745",
-    padding: 10,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 5,
     marginHorizontal: 10,
   },
   qtyButtonText: {
     fontWeight: "bold",
     fontSize: 18,
+    color: "white",
   },
   qtyText: {
     fontSize: 18,
@@ -221,7 +252,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   addButton: {
-    backgroundColor: "#28a745",
     paddingVertical: 15,
     borderRadius: 5,
   },

@@ -1,42 +1,41 @@
+import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
+import { StringHelper } from "@/helpers";
 import { ApiResponse } from "@/models/responses/ApiResponse";
 import { useQuery } from "@tanstack/react-query";
 import { FC } from "react";
-import { useAuth } from "../context";
 import {
-  ActivityIndicator,
   Alert,
+  StyleSheet,
+  ActivityIndicator,
   ScrollView,
   TouchableNativeFeedback,
-  StyleSheet,
-  useColorScheme,
-  RefreshControl,
+  Image,
 } from "react-native";
-import { StringHelper } from "@/helpers";
-import { getMyOrders } from "@/services/OrderService";
-import DateHelper from "@/helpers/DateHelper";
-import { Colors } from "@/constants/Colors";
+import { getOrderToday } from "@/services/OrderDetailService";
+import { OrderTodayResponse } from "@/models/responses/OrderTodayResponse";
+import { RefreshControl } from "react-native";
 
-const HistoryScreen: FC = () => {
-  const { user } = useAuth();
-  const { data, isLoading, isError, error, refetch } = useQuery<
-    ApiResponse<OrderResponse[]>,
-    string,
-    OrderResponse[]
-  >({
-    queryKey: ["my-history"],
-    queryFn: async () => await getMyOrders(user?.id ?? 0),
-    select: (response) => {
-      return response.data;
-    },
-  });
-
-  const scheme = useColorScheme();
-  const colors = Colors[scheme ?? "light"];
+const ListOrder: FC = () => {
+  const {
+    data = [],
+    isLoading,
+    isError,
+    error: errorMenu,
+    refetch,
+  } = useQuery<ApiResponse<OrderTodayResponse[]>, string, OrderTodayResponse[]>(
+    {
+      queryKey: ["order-today"],
+      queryFn: async () => await getOrderToday(),
+      select: (response) => {
+        return response.data;
+      },
+    }
+  );
 
   if (isError) {
-    Alert.alert("Error", error ?? "Error while fetching data.");
+    Alert.alert("Error", errorMenu ?? "Error while fetching menu.");
   }
 
   return (
@@ -44,13 +43,12 @@ const HistoryScreen: FC = () => {
       {isLoading ? (
         <ThemedView
           style={{
-            height: "100%",
+            height: "75%",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "#f5f5f5",
           }}
         >
-          <ActivityIndicator size={52} color={colors.primary} />
+          <ActivityIndicator size={52} />
         </ThemedView>
       ) : (
         <ScrollView
@@ -60,35 +58,30 @@ const HistoryScreen: FC = () => {
             <RefreshControl refreshing={isLoading} onRefresh={refetch} />
           }
         >
-          {data?.length === 0 ? (
-            <ThemedText>No Data found</ThemedText>
+          {data.length === 0 ? (
+            <ThemedText>No data found</ThemedText>
           ) : (
-            data?.map((item) => {
+            data.map((item) => {
               return (
-                <TouchableNativeFeedback key={item.id}>
+                <TouchableNativeFeedback key={item.name}>
                   <ThemedView style={styles.menuItem}>
-                    <ThemedView
-                      style={{
-                        height: 100,
-                        width: 100,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderRadius: 12,
-                      }}
-                    >
-                      <ThemedText style={{ fontSize: 24 }}>
-                        {DateHelper.getInitialMonth(item.date).toUpperCase()}
-                      </ThemedText>
-                    </ThemedView>
+                    <Image
+                      source={{ uri: "https://via.placeholder.com/100" }}
+                      style={styles.menuImage}
+                    />
                     <ThemedView style={styles.menuInfo}>
                       <ThemedText style={styles.menuName}>
-                        {DateHelper.formatDate(item.date)}
+                        {item.name}
                       </ThemedText>
-                      <ThemedText style={styles.menuDescription}>
-                        {"item.merchantName"}
+                      <ThemedText
+                        style={styles.menuDescription}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {item.details.map((q) => q.menuName).join(", ")}
                       </ThemedText>
                       <ThemedText style={styles.menuPrice}>
-                        {StringHelper.currencyFormat(12)}
+                        {StringHelper.currencyFormat(item.total)}
                       </ThemedText>
                     </ThemedView>
                   </ThemedView>
@@ -105,8 +98,8 @@ const HistoryScreen: FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
     padding: 16,
+    backgroundColor: "#f5f5f5",
   },
   menuList: {
     flex: 1,
@@ -115,7 +108,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 15,
     position: "relative",
+    backgroundColor: "white",
     borderRadius: 16,
+    paddingVertical: 12,
+    paddingStart: 12,
   },
   menuImage: {
     width: 100,
@@ -126,7 +122,9 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     justifyContent: "center",
     flex: 1,
+    backgroundColor: "white",
     borderRadius: 16,
+    paddingEnd: 24,
   },
   menuName: {
     fontSize: 18,
@@ -166,4 +164,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HistoryScreen;
+export default ListOrder;

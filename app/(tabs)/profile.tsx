@@ -1,46 +1,98 @@
-import React, { useEffect, useState } from "react";
-import { Image, TouchableOpacity, Alert, StyleSheet, Text } from "react-native";
-import { useAuth } from "../context";
-import { ThemedView } from "@/components/ThemedView";
+import React from "react";
+import {
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  useColorScheme,
+} from "react-native";
 import { ThemedText } from "@/components/ThemedText";
+import { useAuth, useCart } from "../context";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
-import { StorageHelper } from "@/helpers";
-import { Storage } from "@/constants/Storage";
-import { logout } from "@/services";
+import { Colors } from "@/constants/Colors";
 
 const ProfileScreen = () => {
-  const { logout: removeData, code } = useAuth();
-  const handleLogout = () => {
-    Alert.alert("Logout", "Are you sure you want to log out?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "OK",
-        onPress: async () => {
-          if (code) {
-            await logout(code);
-            removeData();
-          }
-        },
-      },
-    ]);
-  };
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const { clearCart } = useCart();
+
+  const scheme = useColorScheme();
+  const colors = Colors[scheme ?? "light"];
 
   return (
-    <SafeAreaThemedView style={styles.container}>
-      <ThemedView style={styles.profileContainer}>
+    <SafeAreaThemedView
+      style={[styles.container, { backgroundColor: colors.primary }]}
+    >
+      <View style={[styles.header, { backgroundColor: colors.primary }]}>
+        <View style={styles.editIcon}>
+          <MaterialCommunityIcons
+            name="account-edit-outline"
+            size={32}
+            color={"white"}
+          />
+        </View>
         <Image
-          source={{ uri: "https://via.placeholder.com/150" }}
           style={styles.profileImage}
+          source={{ uri: "https://via.placeholder.com/100" }}
         />
+        <ThemedText style={styles.profileName}>{user?.name}</ThemedText>
+        <View
+          style={{
+            width: 120,
+            backgroundColor: "#E6E6E6",
+            paddingHorizontal: 16,
+            justifyContent: "center",
+            alignItems: "center",
+            borderRadius: 20,
+            paddingVertical: 8,
+            marginTop: 12,
+          }}
+        >
+          <ThemedText style={styles.badgeText}>Sysadmin</ThemedText>
+        </View>
+      </View>
 
-        <ThemedText style={styles.userName}>{user?.name}</ThemedText>
-        <ThemedText style={styles.userBio}>{""}</ThemedText>
+      <View style={{ backgroundColor: "#f5f5f5", height: "100%" }}>
+        <View style={styles.infoContainer}>
+          <View style={styles.infoRow}>
+            <MaterialCommunityIcons
+              name="email"
+              size={24}
+              style={styles.icon}
+            />
+            <View style={styles.infoText}>
+              <ThemedText style={styles.label}>Email</ThemedText>
+              <ThemedText style={styles.value}>
+                {user?.roleName ?? "email nanti"}
+              </ThemedText>
+            </View>
+          </View>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Logout</Text>
+          <View style={styles.infoRow}>
+            <MaterialCommunityIcons
+              name="phone"
+              size={24}
+              style={styles.icon}
+            />
+            <View style={styles.infoText}>
+              <ThemedText style={styles.label}>Nomor Telpon</ThemedText>
+              <ThemedText style={styles.value}>
+                {user?.roleName ?? "nomor nanti"}
+              </ThemedText>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          style={[styles.logoutButton, { backgroundColor: colors.primary }]}
+          onPress={() => {
+            logout();
+            clearCart();
+          }}
+        >
+          <ThemedText style={styles.logoutText}>Logout</ThemedText>
         </TouchableOpacity>
-      </ThemedView>
+      </View>
     </SafeAreaThemedView>
   );
 };
@@ -48,43 +100,81 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
   },
-  profileContainer: {
+  header: {
+    paddingVertical: 30,
     alignItems: "center",
+    marginBottom: 20,
+    height: "30%",
   },
   profileImage: {
-    width: 130,
-    height: 130,
-    borderRadius: 75,
-    marginBottom: 20,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#fff",
   },
-  userName: {
+  editIcon: {
+    position: "absolute",
+    right: 22,
+  },
+  profileName: {
+    marginTop: 18,
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 5,
+    color: "white",
   },
-  userEmail: {
+  badgeText: {
+    color: "#EC7332",
     fontSize: 16,
-    marginBottom: 10,
+    fontWeight: "600",
   },
-  userBio: {
-    fontSize: 14,
-    textAlign: "center",
+  infoContainer: {
+    padding: 16,
+    borderRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
     marginBottom: 20,
-    paddingHorizontal: 20,
+    marginTop: 24,
+  },
+  infoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+    borderRadius: 10,
+    shadowColor: "black",
+    shadowOpacity: 1,
+    backgroundColor: "white",
+    elevation: 12,
+  },
+  icon: {
+    alignContent: "center",
+    marginRight: 12,
+    color: "#A8C2E0",
+  },
+  infoText: {
+    flexDirection: "column",
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "black",
+  },
+  value: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "black",
   },
   logoutButton: {
-    backgroundColor: "#ff5c5c",
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    borderRadius: 25,
+    paddingVertical: 15,
+    borderRadius: 30,
+    marginHorizontal: 24,
+    alignItems: "center",
   },
-  logoutButtonText: {
-    fontSize: 18,
+  logoutText: {
     color: "white",
+    fontSize: 18,
     fontWeight: "bold",
   },
 });

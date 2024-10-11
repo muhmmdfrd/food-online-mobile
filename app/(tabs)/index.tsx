@@ -9,6 +9,8 @@ import {
   View,
   ActivityIndicator,
   Alert,
+  useColorScheme,
+  RefreshControl,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { FAB } from "react-native-paper";
@@ -27,6 +29,7 @@ import { StringHelper } from "@/helpers";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
 
 const page: PagingRequest = {
   current: 1,
@@ -60,6 +63,7 @@ const HomeScreen = () => {
     isLoading: loadingMenu,
     isError: isErrorMenu,
     error: errorMenu,
+    refetch,
   } = useQuery<ApiResponse<PagingResponse<Menu[]>>, string, Menu[]>({
     queryKey: ["menu", menuPage],
     queryFn: async () => await getMenu(menuPage),
@@ -74,19 +78,10 @@ const HomeScreen = () => {
     name: "Select merchant",
   });
 
-  const { user } = useAuth();
   const { cartItems } = useCart();
 
-  const color = useThemeColor({ light: "black", dark: "white" }, "text");
-
-  const getPickerStyles = (color: string): StyleProp<any> => {
-    return {
-      height: 50,
-      width: "100%",
-      marginBottom: 20,
-      color: color,
-    };
-  };
+  const scheme = useColorScheme();
+  const primaryColor = Colors[scheme ?? "light"].primary;
 
   const getItemQuantityInCart = (menuId: number) => {
     const itemInCart = cartItems.find((item) => item.menuId === menuId);
@@ -98,28 +93,10 @@ const HomeScreen = () => {
   }
 
   return (
-    <SafeAreaThemedView style={styles.safeArea}>
-      <ThemedView style={styles.container}>
-        <ThemedView style={styles.header}>
-          <ThemedView style={styles.profile}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/50" }}
-              style={styles.profileImage}
-            />
-            <ThemedText style={styles.profileName}>{user?.name}</ThemedText>
-          </ThemedView>
-          <TouchableOpacity style={styles.notificationButton}>
-            <ThemedText style={styles.notificationText}>
-              <MaterialCommunityIcons name="bell" size={24} />
-            </ThemedText>
-          </TouchableOpacity>
-        </ThemedView>
-
-        <ThemedView style={styles.divider} />
-
+    <ThemedView style={styles.container}>
+      <ThemedView style={styles.picker}>
         <Picker
           selectedValue={selectedMerchant}
-          style={getPickerStyles(color)}
           onValueChange={(itemValue) => {
             setSelectedMerchant(itemValue);
 
@@ -139,125 +116,97 @@ const HomeScreen = () => {
             />
           ))}
         </Picker>
-
-        {loadingMenu ? (
-          <ThemedView
-            style={{
-              height: "75%",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <ActivityIndicator size={52} />
-          </ThemedView>
-        ) : (
-          <ScrollView
-            style={styles.menuList}
-            showsVerticalScrollIndicator={false}
-          >
-            {menus.map((item) => {
-              const itemQuantity = getItemQuantityInCart(item.id);
-              return (
-                <TouchableNativeFeedback
-                  key={item.id}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/menu/detail",
-                      params: {
-                        menuId: item.id,
-                      },
-                    })
-                  }
-                >
-                  <ThemedView style={styles.menuItem}>
-                    <Image
-                      source={{ uri: "https://via.placeholder.com/100" }}
-                      style={styles.menuImage}
-                    />
-                    <ThemedView style={styles.menuInfo}>
-                      <ThemedText style={styles.menuName}>
-                        {item.name}
-                      </ThemedText>
-                      <ThemedText style={styles.menuPrice}>
-                        {StringHelper.currencyFormat(item.price)}
-                      </ThemedText>
-                      <ThemedText style={styles.menuDescription}>
-                        {item.merchantName}
-                      </ThemedText>
-                    </ThemedView>
-                    {itemQuantity > 0 && (
-                      <View style={styles.quantityIndicator}>
-                        <ThemedText style={styles.qtyText}>
-                          {itemQuantity}
-                        </ThemedText>
-                      </View>
-                    )}
-                  </ThemedView>
-                </TouchableNativeFeedback>
-              );
-            })}
-          </ScrollView>
-        )}
-
-        {cartItems.length <= 0 ? (
-          <FAB
-            color="black"
-            style={styles.fab}
-            icon="cart"
-            onPress={() => router.push("/cart/cart")}
-          />
-        ) : (
-          <FAB
-            color="black"
-            label={cartItems.length.toString()}
-            style={styles.fab}
-            icon="cart"
-            onPress={() => router.push("/cart/cart")}
-          />
-        )}
       </ThemedView>
-    </SafeAreaThemedView>
+
+      {loadingMenu ? (
+        <ThemedView
+          style={{
+            height: "75%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <ActivityIndicator size={52} color={primaryColor} />
+        </ThemedView>
+      ) : (
+        <ScrollView
+          style={styles.menuList}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={loadingMenu} onRefresh={refetch} />
+          }
+        >
+          {menus.map((item) => {
+            const itemQuantity = getItemQuantityInCart(item.id);
+            return (
+              <TouchableNativeFeedback
+                key={item.id}
+                onPress={() =>
+                  router.push({
+                    pathname: "/menu/detail",
+                    params: {
+                      menuId: item.id,
+                    },
+                  })
+                }
+              >
+                <ThemedView style={styles.menuItem}>
+                  <Image
+                    source={{ uri: "https://via.placeholder.com/100" }}
+                    style={styles.menuImage}
+                  />
+                  <ThemedView style={styles.menuInfo}>
+                    <ThemedText style={styles.menuName}>{item.name}</ThemedText>
+                    <ThemedText style={styles.menuDescription}>
+                      {item.merchantName}
+                    </ThemedText>
+                    <ThemedText style={styles.menuPrice}>
+                      {StringHelper.currencyFormat(item.price)}
+                    </ThemedText>
+                  </ThemedView>
+                  {itemQuantity > 0 && (
+                    <View
+                      style={[
+                        styles.quantityIndicator,
+                        { backgroundColor: primaryColor },
+                      ]}
+                    >
+                      <ThemedText style={styles.qtyText}>
+                        {itemQuantity}
+                      </ThemedText>
+                    </View>
+                  )}
+                </ThemedView>
+              </TouchableNativeFeedback>
+            );
+          })}
+        </ScrollView>
+      )}
+
+      {cartItems.length <= 0 ? (
+        <FAB
+          color={primaryColor}
+          style={[styles.fab, { backgroundColor: "#F0925F" }]}
+          icon="cart-outline"
+          onPress={() => router.push("/cart/cart")}
+        />
+      ) : (
+        <FAB
+          color={primaryColor}
+          label={cartItems.length.toString()}
+          style={[styles.fab, { backgroundColor: "#F0925F" }]}
+          icon="cart-outline"
+          onPress={() => router.push("/cart/cart")}
+        />
+      )}
+    </ThemedView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
   container: {
     flex: 1,
     padding: 16,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-  },
-  profile: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-  },
-  profileName: {
-    marginLeft: 10,
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-  notificationButton: {
-    padding: 8,
-  },
-  notificationText: {
-    fontSize: 20,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#ccc",
-    marginVertical: 10,
   },
   menuList: {
     flex: 1,
@@ -278,7 +227,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
   },
   menuDescription: {
@@ -291,16 +240,19 @@ const styles = StyleSheet.create({
   },
   quantityIndicator: {
     position: "absolute",
-    right: 10,
-    top: "50%",
-    transform: [{ translateY: -10 }],
-    backgroundColor: "green",
-    borderRadius: 50,
-    padding: 8,
+    right: 8,
+    width: 28,
+    height: 28,
+    top: "40%",
+    transform: [{ translateY: -8 }],
+    borderRadius: 32,
+    padding: 4,
   },
   qtyText: {
+    left: 6,
+    bottom: 2,
     color: "white",
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: "bold",
   },
   fab: {
@@ -308,8 +260,15 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: "green",
     fontSize: 16,
+  },
+  picker: {
+    width: "100%",
+    marginBottom: 12,
+    borderColor: "#E6E6E6",
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderRadius: 16,
   },
 });
 

@@ -46,7 +46,8 @@ function AppRoutes() {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
+    Inter: require("../assets/fonts/Inter-VariableFont_opsz,wght.ttf"),
+    "Crimson-Text": require("../assets/fonts/CrimsonText-Regular.ttf"),
   });
 
   useEffect(() => {

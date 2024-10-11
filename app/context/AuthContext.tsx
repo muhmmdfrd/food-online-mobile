@@ -43,6 +43,8 @@ export const AuthProvider: FC<React.PropsWithChildren<unknown>> = ({
       await AuthHelper.setCode(code);
       await AuthHelper.setCurrentUser(user);
       setAuthorized(true);
+      setUser(user);
+      setCode(code);
     } catch (error) {
       console.error("Error storing authKey:", error);
     }
@@ -51,6 +53,8 @@ export const AuthProvider: FC<React.PropsWithChildren<unknown>> = ({
   const logout = async () => {
     try {
       await StorageHelper.removeAllData();
+      setUser(null);
+      setCode(null);
       setAuthorized(false);
     } catch (error) {
       console.error("Error removing authKey:", error);
