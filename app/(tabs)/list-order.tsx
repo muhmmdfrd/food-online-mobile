@@ -1,10 +1,9 @@
-import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { StringHelper } from "@/helpers";
 import { ApiResponse } from "@/models/responses/ApiResponse";
 import { useQuery } from "@tanstack/react-query";
-import { FC } from "react";
+import { FC, useState } from "react";
 import {
   Alert,
   StyleSheet,
@@ -12,12 +11,15 @@ import {
   ScrollView,
   TouchableNativeFeedback,
   Image,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { getOrderToday } from "@/services/OrderDetailService";
 import { OrderTodayResponse } from "@/models/responses/OrderTodayResponse";
 import { RefreshControl } from "react-native";
+import OrderPersonModal from "@/modals/OrderPersonModal";
 
 const ListOrder: FC = () => {
+  const [visibleModal, setVisibleModal] = useState<boolean>(false);
   const {
     data = [],
     isLoading,
@@ -39,70 +41,77 @@ const ListOrder: FC = () => {
   }
 
   return (
-    <ThemedView style={styles.container}>
-      {isLoading ? (
-        <ThemedView
-          style={{
-            height: "75%",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <ActivityIndicator size={52} />
-        </ThemedView>
-      ) : (
-        <ScrollView
-          style={styles.menuList}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-          }
-        >
-          {data.length === 0 ? (
-            <ThemedText>No data found</ThemedText>
-          ) : (
-            data.map((item) => {
-              return (
-                <TouchableNativeFeedback key={item.name}>
-                  <ThemedView style={styles.menuItem}>
-                    <Image
-                      source={{ uri: "https://via.placeholder.com/100" }}
-                      style={styles.menuImage}
-                    />
-                    <ThemedView style={styles.menuInfo}>
-                      <ThemedText style={styles.menuName}>
-                        {item.name}
-                      </ThemedText>
-                      <ThemedText
-                        style={styles.menuDescription}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {item.details.map((q) => q.menuName).join(", ")}
-                      </ThemedText>
-                      <ThemedText style={styles.menuPrice}>
-                        {StringHelper.currencyFormat(item.total)}
-                      </ThemedText>
+    <>
+      <ThemedView style={styles.container}>
+        {isLoading ? (
+          <ThemedView
+            style={{
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <ActivityIndicator size={52} />
+          </ThemedView>
+        ) : (
+          <ScrollView
+            style={styles.menuList}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+            }
+          >
+            {data.length === 0 ? (
+              <ThemedText>No data found</ThemedText>
+            ) : (
+              data.map((item) => {
+                return (
+                  <TouchableWithoutFeedback
+                    key={item.name}
+                    onPress={() => setVisibleModal((v) => !v)}
+                  >
+                    <ThemedView style={styles.menuItem}>
+                      <Image
+                        source={{ uri: "https://via.placeholder.com/100" }}
+                        style={styles.menuImage}
+                      />
+                      <ThemedView style={styles.menuInfo}>
+                        <ThemedText style={styles.menuName}>
+                          {item.name}
+                        </ThemedText>
+                        <ThemedText
+                          style={styles.menuDescription}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {item.details.map((q) => q.menuName).join(", ")}
+                        </ThemedText>
+                        <ThemedText style={styles.menuPrice}>
+                          {StringHelper.currencyFormat(item.total)}
+                        </ThemedText>
+                      </ThemedView>
                     </ThemedView>
-                  </ThemedView>
-                </TouchableNativeFeedback>
-              );
-            })
-          )}
-        </ScrollView>
-      )}
-    </ThemedView>
+                  </TouchableWithoutFeedback>
+                );
+              })
+            )}
+          </ScrollView>
+        )}
+      </ThemedView>
+      <OrderPersonModal visible={visibleModal} setVisible={setVisibleModal} />
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    // padding: 16,
     backgroundColor: "#f5f5f5",
   },
   menuList: {
     flex: 1,
+    padding: 16,
   },
   menuItem: {
     flexDirection: "row",

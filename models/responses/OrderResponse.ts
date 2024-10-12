@@ -4,4 +4,6 @@ type OrderResponse = {
   code: string;
   date: string;
   status: number;
+  menus: string[];
+  total: number;
 };

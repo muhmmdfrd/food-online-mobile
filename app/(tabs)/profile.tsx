@@ -5,6 +5,7 @@ import {
   Image,
   TouchableOpacity,
   useColorScheme,
+  Alert,
 } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useAuth, useCart } from "../context";
@@ -38,7 +39,6 @@ const ProfileScreen = () => {
         <ThemedText style={styles.profileName}>{user?.name}</ThemedText>
         <View
           style={{
-            width: 120,
             backgroundColor: "#E6E6E6",
             paddingHorizontal: 16,
             justifyContent: "center",
@@ -48,7 +48,9 @@ const ProfileScreen = () => {
             marginTop: 12,
           }}
         >
-          <ThemedText style={styles.badgeText}>Sysadmin</ThemedText>
+          <ThemedText style={styles.badgeText}>
+            {user?.roleName ?? "-"}
+          </ThemedText>
         </View>
       </View>
 
@@ -62,9 +64,7 @@ const ProfileScreen = () => {
             />
             <View style={styles.infoText}>
               <ThemedText style={styles.label}>Email</ThemedText>
-              <ThemedText style={styles.value}>
-                {user?.roleName ?? "email nanti"}
-              </ThemedText>
+              <ThemedText style={styles.value}>{user?.email ?? "-"}</ThemedText>
             </View>
           </View>
 
@@ -75,9 +75,9 @@ const ProfileScreen = () => {
               style={styles.icon}
             />
             <View style={styles.infoText}>
-              <ThemedText style={styles.label}>Nomor Telpon</ThemedText>
+              <ThemedText style={styles.label}>Phone</ThemedText>
               <ThemedText style={styles.value}>
-                {user?.roleName ?? "nomor nanti"}
+                {user?.phoneNumber ?? "-"}
               </ThemedText>
             </View>
           </View>
@@ -86,8 +86,19 @@ const ProfileScreen = () => {
         <TouchableOpacity
           style={[styles.logoutButton, { backgroundColor: colors.primary }]}
           onPress={() => {
-            logout();
-            clearCart();
+            Alert.alert("Confirmation", "Are you sure want to logout?", [
+              {
+                text: "Cancel",
+                style: "cancel",
+              },
+              {
+                text: "OK",
+                onPress: () => {
+                  logout();
+                  clearCart();
+                },
+              },
+            ]);
           }}
         >
           <ThemedText style={styles.logoutText}>Logout</ThemedText>

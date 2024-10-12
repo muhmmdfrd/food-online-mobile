@@ -13,6 +13,7 @@ import { useColorScheme } from "@/hooks/useColorScheme";
 import { AuthProvider, useAuth } from "@/app/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "@/app/context/CartContext";
+import { PaperProvider } from "react-native-paper";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -38,6 +39,7 @@ function AppRoutes() {
         }}
       />
       <Stack.Screen name="menu/detail" options={{ headerShown: false }} />
+      <Stack.Screen name="my-order/detail" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
@@ -60,7 +62,16 @@ export default function RootLayout() {
     return null;
   }
 
-  const queryClient = new QueryClient({});
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+      mutations: {
+        retry: false,
+      },
+    },
+  });
   const theme = colorScheme === "dark" ? DarkTheme : DefaultTheme;
 
   return (
@@ -68,7 +79,9 @@ export default function RootLayout() {
       <AuthProvider>
         <ThemeProvider value={theme}>
           <CartProvider>
-            <AppRoutes />
+            <PaperProvider>
+              <AppRoutes />
+            </PaperProvider>
           </CartProvider>
         </ThemeProvider>
       </AuthProvider>

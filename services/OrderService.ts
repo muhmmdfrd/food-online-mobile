@@ -5,6 +5,7 @@ import {
 import { ApiResponse } from "@/models/responses/ApiResponse";
 import { get, post } from "./IndexService";
 import { CalculateResponse } from "@/models/responses/CalculateResponse";
+import { OrderDetailHistoryResponse } from "@/models/responses/OrderDetailHistoryResponse";
 
 const calculate = (
   items: OrderDetailItem[]
@@ -22,4 +23,11 @@ const getMyOrders = (userId: number): Promise<ApiResponse<OrderResponse[]>> => {
   return get(`orders/user/${userId}`);
 };
 
-export { calculate, createOrder, getMyOrders };
+const getMyOrderDetail = (
+  userId: number,
+  orderId: number
+): Promise<ApiResponse<OrderDetailHistoryResponse>> => {
+  return get(`orders/user/${userId}/detail/${orderId}`);
+};
+
+export { calculate, createOrder, getMyOrders, getMyOrderDetail };

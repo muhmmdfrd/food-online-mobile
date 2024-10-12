@@ -7,13 +7,11 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import React, { useEffect, useState } from "react";
 import {
   Image,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
   RefreshControl,
   useColorScheme,
   Alert,
-  TextInput,
 } from "react-native";
 import { useCart } from "../context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -24,9 +22,12 @@ import { createOrder } from "@/services/OrderService";
 import { Response } from "@/constants/Response";
 import { router } from "expo-router";
 import { Button, Divider } from "react-native-paper";
+import ChartPaymentModal from "@/modals/ChartPaymentModal";
 
 const CartScreen = () => {
   const [cash, setCash] = useState<number>(0);
+  const [visibleModal, setVisibleModal] = useState<boolean>(false);
+
   const { cartItems, clearCart } = useCart();
 
   useEffect(() => {
@@ -124,96 +125,103 @@ const CartScreen = () => {
   }
 
   return (
-    <SafeAreaThemedView style={styles.safeArea}>
-      <ThemedView style={styles.container}>
-        <ThemedText style={styles.headerText}>Your Cart</ThemedText>
+    <>
+      <SafeAreaThemedView style={styles.safeArea}>
+        <ThemedView style={styles.container}>
+          <ThemedText style={styles.headerText}>Your Cart</ThemedText>
 
-        <ScrollView
-          style={styles.cartList}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-          }
-        >
-          {isLoading ? (
-            <ThemedText>Loading...</ThemedText>
-          ) : (
-            data?.items.map((item) => {
-              return (
-                <ThemedView key={item.menuName} style={styles.cartItem}>
-                  <Image
-                    source={{ uri: "https://via.placeholder.com/50" }}
-                    style={styles.cartImage}
-                  />
-                  <ThemedView style={styles.cartInfo}>
-                    <ThemedText style={styles.cartName}>
-                      {item.menuName}
-                    </ThemedText>
-                    <ThemedText style={styles.cartPrice}>
-                      {item.qty} pcs
-                    </ThemedText>
-                    <ThemedText style={styles.cartPrice}>
-                      {StringHelper.currencyFormat(item.total)}
-                    </ThemedText>
+          <ScrollView
+            style={styles.cartList}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+            }
+          >
+            {isLoading ? (
+              <ThemedText>Loading...</ThemedText>
+            ) : (
+              data?.items.map((item) => {
+                return (
+                  <ThemedView key={item.menuName} style={styles.cartItem}>
+                    <Image
+                      source={{ uri: "https://via.placeholder.com/50" }}
+                      style={styles.cartImage}
+                    />
+                    <ThemedView style={styles.cartInfo}>
+                      <ThemedText style={styles.cartName}>
+                        {item.menuName}
+                      </ThemedText>
+                      <ThemedText style={styles.cartPrice}>
+                        {item.qty} pcs
+                      </ThemedText>
+                      <ThemedText style={styles.cartPrice}>
+                        {StringHelper.currencyFormat(item.total)}
+                      </ThemedText>
+                    </ThemedView>
                   </ThemedView>
-                </ThemedView>
-              );
-            })
-          )}
-        </ScrollView>
+                );
+              })
+            )}
+          </ScrollView>
 
-        <Divider />
-        <ThemedView style={styles.containerPayment}>
-          <ThemedView style={styles.row}>
-            <ThemedText style={[styles.text]}>Payment</ThemedText>
-            <ThemedText style={styles.text}>Cash</ThemedText>
-          </ThemedView>
-
-          <ThemedView style={styles.row}>
-            <ThemedText style={styles.text}>Amount Paid</ThemedText>
+          <Divider />
+          <ThemedView style={styles.containerPayment}>
             <ThemedView style={styles.row}>
+              <ThemedText style={[styles.text]}>Payment</ThemedText>
+              <ThemedText style={styles.text}>Cash</ThemedText>
+            </ThemedView>
+
+            <ThemedView style={styles.row}>
+              <ThemedText style={styles.text}>Amount Paid</ThemedText>
+              <ThemedView style={styles.row}>
+                <MaterialCommunityIcons
+                  name="pen"
+                  size={20}
+                  style={{ marginEnd: 4 }}
+                  onPress={() => setVisibleModal((s) => !s)}
+                />
+                <ThemedText style={styles.text}>
+                  {StringHelper.currencyFormat(cash)}
+                </ThemedText>
+              </ThemedView>
+            </ThemedView>
+
+            <ThemedView style={styles.row}>
+              <ThemedText style={styles.text}>Change</ThemedText>
               <ThemedText style={styles.text}>
-                {StringHelper.currencyFormat(cash)}
+                {StringHelper.currencyFormat(
+                  calculateChange(data?.grandTotal ?? 0)
+                )}
               </ThemedText>
-              <MaterialCommunityIcons
-                name="pen"
-                size={20}
-                style={{ marginStart: 8 }}
-                onPress={() => setCash(52961)}
-              />
             </ThemedView>
           </ThemedView>
 
-          <ThemedView style={styles.row}>
-            <ThemedText style={styles.text}>Change</ThemedText>
-            <ThemedText style={styles.text}>
-              {StringHelper.currencyFormat(
-                calculateChange(data?.grandTotal ?? 0)
-              )}
+          <Button
+            disabled={isButtonDisabled()}
+            style={[
+              styles.confirmButton,
+              {
+                backgroundColor: isButtonDisabled()
+                  ? "gray"
+                  : Colors[scheme ?? "light"].primary,
+              },
+            ]}
+            onPress={handleOrder}
+          >
+            <ThemedText style={styles.confirmButtonText}>
+              {mutation.isPending
+                ? "Creating order..."
+                : `Order ${StringHelper.currencyFormat(data?.grandTotal ?? 0)}`}
             </ThemedText>
-          </ThemedView>
+          </Button>
         </ThemedView>
-
-        <Button
-          disabled={isButtonDisabled()}
-          style={[
-            styles.confirmButton,
-            {
-              backgroundColor: isButtonDisabled()
-                ? "gray"
-                : Colors[scheme ?? "light"].primary,
-            },
-          ]}
-          onPress={handleOrder}
-        >
-          <ThemedText style={styles.confirmButtonText}>
-            {mutation.isPending
-              ? "Creating order..."
-              : `Order ${StringHelper.currencyFormat(data?.grandTotal ?? 0)}`}
-          </ThemedText>
-        </Button>
-      </ThemedView>
-    </SafeAreaThemedView>
+      </SafeAreaThemedView>
+      <ChartPaymentModal
+        visible={visibleModal}
+        setVisible={setVisibleModal}
+        setCash={setCash}
+      />
+    </>
   );
 };
 

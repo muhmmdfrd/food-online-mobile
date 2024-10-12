@@ -8,15 +8,16 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
-  TouchableNativeFeedback,
-  StyleSheet,
   useColorScheme,
   RefreshControl,
+  TouchableWithoutFeedback,
+  StyleSheet,
 } from "react-native";
 import { StringHelper } from "@/helpers";
 import { getMyOrders } from "@/services/OrderService";
 import DateHelper from "@/helpers/DateHelper";
 import { Colors } from "@/constants/Colors";
+import { router } from "expo-router";
 
 const HistoryScreen: FC = () => {
   const { user } = useAuth();
@@ -65,7 +66,18 @@ const HistoryScreen: FC = () => {
           ) : (
             data?.map((item) => {
               return (
-                <TouchableNativeFeedback key={item.id}>
+                <TouchableWithoutFeedback
+                  key={item.id}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/my-order/detail",
+                      params: {
+                        orderId: item.id,
+                        userId: user?.id,
+                      },
+                    })
+                  }
+                >
                   <ThemedView style={styles.menuItem}>
                     <ThemedView
                       style={{
@@ -84,15 +96,19 @@ const HistoryScreen: FC = () => {
                       <ThemedText style={styles.menuName}>
                         {DateHelper.formatDate(item.date)}
                       </ThemedText>
-                      <ThemedText style={styles.menuDescription}>
-                        {"item.merchantName"}
+                      <ThemedText
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={styles.menuDescription}
+                      >
+                        {item.menus.join(", ")}
                       </ThemedText>
                       <ThemedText style={styles.menuPrice}>
-                        {StringHelper.currencyFormat(12)}
+                        {StringHelper.currencyFormat(item.total)}
                       </ThemedText>
                     </ThemedView>
                   </ThemedView>
-                </TouchableNativeFeedback>
+                </TouchableWithoutFeedback>
               );
             })
           )}
@@ -135,6 +151,7 @@ const styles = StyleSheet.create({
   menuDescription: {
     fontSize: 14,
     color: "#666",
+    paddingEnd: 24,
   },
   menuPrice: {
     fontSize: 16,

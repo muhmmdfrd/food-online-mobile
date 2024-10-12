@@ -11,6 +11,7 @@ import {
   Alert,
   useColorScheme,
   RefreshControl,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { FAB } from "react-native-paper";
@@ -139,7 +140,7 @@ const HomeScreen = () => {
           {menus.map((item) => {
             const itemQuantity = getItemQuantityInCart(item.id);
             return (
-              <TouchableNativeFeedback
+              <TouchableWithoutFeedback
                 key={item.id}
                 onPress={() =>
                   router.push({
@@ -177,7 +178,7 @@ const HomeScreen = () => {
                     </View>
                   )}
                 </ThemedView>
-              </TouchableNativeFeedback>
+              </TouchableWithoutFeedback>
             );
           })}
         </ScrollView>
