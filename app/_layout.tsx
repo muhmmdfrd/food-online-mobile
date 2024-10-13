@@ -8,12 +8,15 @@ import { router, Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
-
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { AuthProvider, useAuth } from "@/app/context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CartProvider } from "@/app/context/CartContext";
 import { PaperProvider } from "react-native-paper";
+import messaging from "@react-native-firebase/messaging";
+import { Alert, PermissionsAndroid } from "react-native";
+import notifee from "@notifee/react-native";
+import { updateFirebaseToken } from "@/services";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -58,9 +61,53 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
+  useEffect(() => {
+    PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+    );
+
+    const _updateFirebaseToken = async () => {
+      try {
+        const token = await messaging().getToken();
+        if (token) {
+          updateFirebaseToken(token);
+        }
+      } catch (error) {
+        console.error("Error getting Firebase token:", error);
+      }
+    };
+
+    _updateFirebaseToken();
+
+    const unsubscribe = messaging().onTokenRefresh((token) => {
+      if (token) {
+        updateFirebaseToken(token);
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async (message) => {
+      const { title, body } = message.notification!;
+      Alert.alert(title ?? "Title", body);
+    });
+
+    return unsubscribe;
+  }, []);
+
   if (!loaded) {
     return null;
   }
+
+  messaging().setBackgroundMessageHandler(async (message) => {
+    const { title, body } = message.notification!;
+    await notifee.displayNotification({
+      title: title,
+      body: body,
+    });
+  });
 
   const queryClient = new QueryClient({
     defaultOptions: {

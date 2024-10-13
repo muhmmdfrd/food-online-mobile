@@ -116,7 +116,7 @@ const CartScreen = () => {
           <MaterialCommunityIcons
             name="food-off"
             size={108}
-            color={Colors[scheme ?? "light"].text}
+            color={Colors[scheme ?? "light"].primary}
           />
           <ThemedText style={{ marginTop: 8 }}>No items found</ThemedText>
         </ThemedView>

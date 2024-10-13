@@ -41,7 +41,7 @@ export default function TabLayout() {
                     <MaterialCommunityIcons
                       name="bell"
                       size={24}
-                      color={"black"}
+                      color={colors.primary}
                     />
                   </ThemedText>
                 </TouchableOpacity>

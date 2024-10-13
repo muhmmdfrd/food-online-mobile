@@ -18,6 +18,7 @@ import { getMyOrders } from "@/services/OrderService";
 import DateHelper from "@/helpers/DateHelper";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 const HistoryScreen: FC = () => {
   const { user } = useAuth();
@@ -53,6 +54,24 @@ const HistoryScreen: FC = () => {
         >
           <ActivityIndicator size={52} color={colors.primary} />
         </ThemedView>
+      ) : data?.length === 0 ? (
+        <ThemedView
+          style={{
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <MaterialCommunityIcons
+            name="food-off"
+            size={108}
+            color={Colors[scheme ?? "light"].primary}
+          />
+          <ThemedText style={{ marginTop: 8 }}>No items found</ThemedText>
+          <ThemedText type="link" onPress={() => refetch()}>
+            Refresh
+          </ThemedText>
+        </ThemedView>
       ) : (
         <ScrollView
           style={styles.menuList}
@@ -61,57 +80,53 @@ const HistoryScreen: FC = () => {
             <RefreshControl refreshing={isLoading} onRefresh={refetch} />
           }
         >
-          {data?.length === 0 ? (
-            <ThemedText>No Data found</ThemedText>
-          ) : (
-            data?.map((item) => {
-              return (
-                <TouchableWithoutFeedback
-                  key={item.id}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/my-order/detail",
-                      params: {
-                        orderId: item.id,
-                        userId: user?.id,
-                      },
-                    })
-                  }
-                >
-                  <ThemedView style={styles.menuItem}>
-                    <ThemedView
-                      style={{
-                        height: 100,
-                        width: 100,
-                        justifyContent: "center",
-                        alignItems: "center",
-                        borderRadius: 12,
-                      }}
-                    >
-                      <ThemedText style={{ fontSize: 24 }}>
-                        {DateHelper.getInitialMonth(item.date).toUpperCase()}
-                      </ThemedText>
-                    </ThemedView>
-                    <ThemedView style={styles.menuInfo}>
-                      <ThemedText style={styles.menuName}>
-                        {DateHelper.formatDate(item.date)}
-                      </ThemedText>
-                      <ThemedText
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                        style={styles.menuDescription}
-                      >
-                        {item.menus.join(", ")}
-                      </ThemedText>
-                      <ThemedText style={styles.menuPrice}>
-                        {StringHelper.currencyFormat(item.total)}
-                      </ThemedText>
-                    </ThemedView>
+          {data?.map((item) => {
+            return (
+              <TouchableWithoutFeedback
+                key={item.id}
+                onPress={() =>
+                  router.push({
+                    pathname: "/my-order/detail",
+                    params: {
+                      orderId: item.id,
+                      userId: user?.id,
+                    },
+                  })
+                }
+              >
+                <ThemedView style={styles.menuItem}>
+                  <ThemedView
+                    style={{
+                      height: 100,
+                      width: 100,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      borderRadius: 12,
+                    }}
+                  >
+                    <ThemedText style={{ fontSize: 24 }}>
+                      {DateHelper.getInitialMonth(item.date).toUpperCase()}
+                    </ThemedText>
                   </ThemedView>
-                </TouchableWithoutFeedback>
-              );
-            })
-          )}
+                  <ThemedView style={styles.menuInfo}>
+                    <ThemedText style={styles.menuName}>
+                      {DateHelper.formatDate(item.date)}
+                    </ThemedText>
+                    <ThemedText
+                      numberOfLines={1}
+                      ellipsizeMode="tail"
+                      style={styles.menuDescription}
+                    >
+                      {item.menus.join(", ")}
+                    </ThemedText>
+                    <ThemedText style={styles.menuPrice}>
+                      {StringHelper.currencyFormat(item.total)}
+                    </ThemedText>
+                  </ThemedView>
+                </ThemedView>
+              </TouchableWithoutFeedback>
+            );
+          })}
         </ScrollView>
       )}
     </ThemedView>
@@ -122,10 +137,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
-    padding: 16,
+    // padding: 16,
   },
   menuList: {
     flex: 1,
+    padding: 16,
   },
   menuItem: {
     flexDirection: "row",

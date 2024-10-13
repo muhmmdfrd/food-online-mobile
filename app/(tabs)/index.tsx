@@ -31,6 +31,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import messaging from "@react-native-firebase/messaging";
 
 const page: PagingRequest = {
   current: 1,
@@ -134,7 +135,12 @@ const HomeScreen = () => {
           style={styles.menuList}
           showsVerticalScrollIndicator={false}
           refreshControl={
-            <RefreshControl refreshing={loadingMenu} onRefresh={refetch} />
+            <RefreshControl
+              refreshing={loadingMenu}
+              onRefresh={() => {
+                refetch();
+              }}
+            />
           }
         >
           {menus.map((item) => {

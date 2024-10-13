@@ -40,6 +40,7 @@ const Login: React.FC = () => {
   const scheme = useColorScheme();
   const primaryColor = Colors[scheme ?? "light"].primary;
   const greyColor = Colors[scheme ?? "light"].grey;
+  const textColor = Colors[scheme ?? "light"].text;
 
   const onSubmit: SubmitHandler<AuthRequest> = (data) => {
     mutation.mutate(data);
@@ -64,7 +65,11 @@ const Login: React.FC = () => {
         rules={{ required: "Username is required" }}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            style={[styles.input, { borderColor: primaryColor }]}
+            style={[
+              styles.input,
+              { borderColor: primaryColor, color: textColor },
+            ]}
+            cursorColor={primaryColor}
             placeholder="Username"
             placeholderTextColor={greyColor}
             value={value}
@@ -86,7 +91,11 @@ const Login: React.FC = () => {
         rules={{ required: "Password is required" }}
         render={({ field: { onChange, value } }) => (
           <TextInput
-            style={[styles.input, { borderColor: primaryColor }]}
+            style={[
+              styles.input,
+              { borderColor: primaryColor, color: textColor },
+            ]}
+            cursorColor={primaryColor}
             placeholder="Password"
             placeholderTextColor={greyColor}
             value={value}

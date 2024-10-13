@@ -38,7 +38,6 @@ const MyOrderDetail = () => {
   }
 
   if (isError) {
-    console.log(error);
     return;
   }
 
@@ -62,10 +61,10 @@ const MyOrderDetail = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Order Summary</Text>
         </View>
-        {data?.orderDetails.map((item) => {
+        {data?.orderDetails.map((item, idx) => {
           return (
             <>
-              <View style={styles.orderItem} key={item.name}>
+              <View style={styles.orderItem} key={idx}>
                 <Text style={styles.itemText}>
                   {item.qty}x {item.name}
                 </Text>

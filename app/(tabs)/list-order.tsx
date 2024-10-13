@@ -12,11 +12,14 @@ import {
   TouchableNativeFeedback,
   Image,
   TouchableWithoutFeedback,
+  useColorScheme,
 } from "react-native";
 import { getOrderToday } from "@/services/OrderDetailService";
 import { OrderTodayResponse } from "@/models/responses/OrderTodayResponse";
 import { RefreshControl } from "react-native";
 import OrderPersonModal from "@/modals/OrderPersonModal";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
 
 const ListOrder: FC = () => {
   const [visibleModal, setVisibleModal] = useState<boolean>(false);
@@ -36,6 +39,8 @@ const ListOrder: FC = () => {
     }
   );
 
+  const scheme = useColorScheme();
+
   if (isError) {
     Alert.alert("Error", errorMenu ?? "Error while fetching menu.");
   }
@@ -53,6 +58,24 @@ const ListOrder: FC = () => {
           >
             <ActivityIndicator size={52} />
           </ThemedView>
+        ) : data.length === 0 ? (
+          <ThemedView
+            style={{
+              height: "100%",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <MaterialCommunityIcons
+              name="food-off"
+              size={108}
+              color={Colors[scheme ?? "light"].primary}
+            />
+            <ThemedText style={{ marginTop: 8 }}>No items found</ThemedText>
+            <ThemedText type="link" onPress={() => refetch()}>
+              Refresh
+            </ThemedText>
+          </ThemedView>
         ) : (
           <ScrollView
             style={styles.menuList}
@@ -61,40 +84,36 @@ const ListOrder: FC = () => {
               <RefreshControl refreshing={isLoading} onRefresh={refetch} />
             }
           >
-            {data.length === 0 ? (
-              <ThemedText>No data found</ThemedText>
-            ) : (
-              data.map((item) => {
-                return (
-                  <TouchableWithoutFeedback
-                    key={item.name}
-                    onPress={() => setVisibleModal((v) => !v)}
-                  >
-                    <ThemedView style={styles.menuItem}>
-                      <Image
-                        source={{ uri: "https://via.placeholder.com/100" }}
-                        style={styles.menuImage}
-                      />
-                      <ThemedView style={styles.menuInfo}>
-                        <ThemedText style={styles.menuName}>
-                          {item.name}
-                        </ThemedText>
-                        <ThemedText
-                          style={styles.menuDescription}
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {item.details.map((q) => q.menuName).join(", ")}
-                        </ThemedText>
-                        <ThemedText style={styles.menuPrice}>
-                          {StringHelper.currencyFormat(item.total)}
-                        </ThemedText>
-                      </ThemedView>
+            {data.map((item) => {
+              return (
+                <TouchableWithoutFeedback
+                  key={item.name}
+                  onPress={() => setVisibleModal((v) => !v)}
+                >
+                  <ThemedView style={styles.menuItem}>
+                    <Image
+                      source={{ uri: "https://via.placeholder.com/100" }}
+                      style={styles.menuImage}
+                    />
+                    <ThemedView style={styles.menuInfo}>
+                      <ThemedText style={styles.menuName}>
+                        {item.name}
+                      </ThemedText>
+                      <ThemedText
+                        style={styles.menuDescription}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {item.details.map((q) => q.menuName).join(", ")}
+                      </ThemedText>
+                      <ThemedText style={styles.menuPrice}>
+                        {StringHelper.currencyFormat(item.total)}
+                      </ThemedText>
                     </ThemedView>
-                  </TouchableWithoutFeedback>
-                );
-              })
-            )}
+                  </ThemedView>
+                </TouchableWithoutFeedback>
+              );
+            })}
           </ScrollView>
         )}
       </ThemedView>

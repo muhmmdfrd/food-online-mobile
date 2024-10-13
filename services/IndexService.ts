@@ -4,7 +4,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import Config from "react-native-config";
 
 const client = axios.create({
-  baseURL: "http://api.safeplace.id/api",
+  baseURL: Config.API_URL,
   timeoutErrorMessage: "No internet connection.",
 });
 
