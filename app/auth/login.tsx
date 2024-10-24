@@ -50,8 +50,7 @@ const Login: React.FC = () => {
   return (
     <ThemedView style={styles.container}>
       <ThemedText style={[styles.header, { color: primaryColor }]} type="title">
-        {/* DapoerGo. */}
-        {REACT_APP_API_URL}
+        DapoerGo.
       </ThemedText>
       <ThemedText
         style={[styles.subHeader, { color: greyColor }]}
