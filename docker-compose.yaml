@@ -1,0 +1,25 @@
+services:
+  nginx:
+    container_name: nginx_app
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - app_foodonline_network
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/app_foodonline.conf
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: react_app:1.0.0
+    container_name: react_app
+    networks:
+      - app_foodonline_network
+    ports:
+      - "3000:3000"
+
+networks:
+  app_foodonline_network:
+    driver: bridge

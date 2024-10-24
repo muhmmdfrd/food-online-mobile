@@ -1,10 +1,10 @@
 import { Response } from "@/constants/Response";
 import { AuthHelper } from "@/helpers";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import Config from "react-native-config";
+import { REACT_APP_API_URL } from "@env";
 
 const client = axios.create({
-  baseURL: Config.API_URL,
+  baseURL: REACT_APP_API_URL,
   timeoutErrorMessage: "No internet connection.",
 });
 

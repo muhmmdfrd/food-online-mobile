@@ -19,4 +19,4 @@ web-build/
 expo-env.d.ts
 # @end expo-cli
 android/app/my-upload-key.keystore
-.env
+*.env
