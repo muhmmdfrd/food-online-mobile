@@ -16,6 +16,7 @@ import { useAuth } from "../context";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
+import { REACT_APP_API_URL } from "@env";
 
 const Login: React.FC = () => {
   const {
@@ -49,7 +50,8 @@ const Login: React.FC = () => {
   return (
     <ThemedView style={styles.container}>
       <ThemedText style={[styles.header, { color: primaryColor }]} type="title">
-        DapoerGo.
+        {/* DapoerGo. */}
+        {REACT_APP_API_URL}
       </ThemedText>
       <ThemedText
         style={[styles.subHeader, { color: greyColor }]}
