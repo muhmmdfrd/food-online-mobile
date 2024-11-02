@@ -32,6 +32,7 @@ import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import messaging from "@react-native-firebase/messaging";
+import MenuImage from "@/components/MenuImage";
 
 const page: PagingRequest = {
   current: 1,
@@ -158,10 +159,7 @@ const HomeScreen = () => {
                 }
               >
                 <ThemedView style={styles.menuItem}>
-                  <Image
-                    source={{ uri: "https://via.placeholder.com/100" }}
-                    style={styles.menuImage}
-                  />
+                  <MenuImage code={item.code} />
                   <ThemedView style={styles.menuInfo}>
                     <ThemedText style={styles.menuName}>{item.name}</ThemedText>
                     <ThemedText style={styles.menuDescription}>
@@ -222,11 +220,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 15,
     position: "relative",
-  },
-  menuImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
   },
   menuInfo: {
     marginLeft: 10,

@@ -1,10 +1,9 @@
 import { Response } from "@/constants/Response";
 import { AuthHelper } from "@/helpers";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { REACT_APP_API_URL } from "@env";
 
 const client = axios.create({
-  baseURL: REACT_APP_API_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeoutErrorMessage: "No internet connection.",
 });
 
