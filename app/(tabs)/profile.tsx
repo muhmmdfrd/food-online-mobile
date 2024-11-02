@@ -12,6 +12,7 @@ import { useAuth, useCart } from "../context";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { Colors } from "@/constants/Colors";
+import ProfileImage from "@/components/ProfileImage";
 
 const ProfileScreen = () => {
   const { user, logout } = useAuth();
@@ -32,10 +33,7 @@ const ProfileScreen = () => {
             color={"white"}
           />
         </View>
-        <Image
-          style={styles.profileImage}
-          source={{ uri: "https://via.placeholder.com/100" }}
-        />
+        <ProfileImage code={user?.code} />
         <ThemedText style={styles.profileName}>{user?.name}</ThemedText>
         <View
           style={{
@@ -117,12 +115,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     height: "30%",
-  },
-  profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: "#fff",
   },
   editIcon: {
     position: "absolute",

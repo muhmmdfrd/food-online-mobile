@@ -8,4 +8,5 @@ export type User = {
   positionName: string;
   email?: string;
   phoneNumber?: string;
+  code?: string;
 };

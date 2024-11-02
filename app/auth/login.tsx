@@ -16,7 +16,6 @@ import { useAuth } from "../context";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
-import { REACT_APP_API_URL } from "@env";
 
 const Login: React.FC = () => {
   const {
