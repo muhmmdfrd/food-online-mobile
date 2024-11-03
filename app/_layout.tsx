@@ -21,10 +21,15 @@ import messaging from "@react-native-firebase/messaging";
 SplashScreen.preventAutoHideAsync();
 
 function AppRoutes() {
-  const { authorized } = useAuth();
+  const { authorized, user } = useAuth();
 
   useEffect(() => {
     if (authorized) {
+      if (user?.roleId == 1) {
+        router.replace("/(tabs)/dashboard");
+        return;
+      }
+
       router.replace("/(tabs)");
     } else {
       router.replace("/auth/login");

@@ -21,6 +21,7 @@ import { useCart } from "@/app/context/CartContext";
 import { OrderDetailItem } from "@/models/requests/OrderDetailRequest";
 import { Divider } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
+import MenuImage from "@/components/MenuImage";
 
 const MenuDetailScreen = () => {
   const [quantity, setQuantity] = useState<number>(1);
@@ -111,10 +112,7 @@ const MenuDetailScreen = () => {
       <ParallaxScrollView
         headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
         headerImage={
-          <Image
-            source={{ uri: "https://via.placeholder.com/200" }}
-            style={styles.menuImage}
-          />
+          <MenuImage size={200} code={item?.code} styles={styles.menuImage} />
         }
       >
         <ThemedText style={styles.menuName}>{item?.name ?? ""}</ThemedText>
@@ -126,17 +124,7 @@ const MenuDetailScreen = () => {
         <ThemedText style={styles.merchant}>{item?.merchantName}</ThemedText>
         <Divider />
         <ThemedText style={{ marginBottom: 24 }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam
-          fringilla ante at ipsum convallis, a molestie lacus ultrices. Sed
-          placerat, felis et efficitur vehicula, libero mauris suscipit nulla,
-          imperdiet rutrum magna metus laoreet risus. Nam gravida, magna at
-          tempus pharetra, odio lorem tristique dui, ac tempus diam dolor eget
-          risus. Suspendisse pretium ornare urna sit amet hendrerit. Aliquam
-          erat volutpat. Vestibulum eu sodales tellus, id rutrum felis. Morbi
-          venenatis enim velit, sed commodo odio rutrum vel. Fusce facilisis et
-          enim non commodo. Proin eget sapien lacinia, dignissim est sit amet,
-          tincidunt turpis. Fusce ut elementum leo. Fusce arcu justo, efficitur
-          eget ante vel, dictum malesuada enim.
+          {item?.description ?? "-"}
         </ThemedText>
         <ThemedView style={styles.priceWrapper}>
           <ThemedText style={styles.price}>

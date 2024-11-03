@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
+  useColorScheme,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
@@ -14,6 +15,7 @@ import { getMyOrderDetail } from "@/services/OrderService";
 import { ThemedView } from "@/components/ThemedView";
 import DateHelper from "@/helpers/DateHelper";
 import { StringHelper } from "@/helpers";
+import { Colors } from "@/constants/Colors";
 
 const MyOrderDetail = () => {
   const { userId, orderId } = useLocalSearchParams();
@@ -22,6 +24,9 @@ const MyOrderDetail = () => {
     queryFn: async () => await getMyOrderDetail(+userId, +orderId),
     select: (data) => data.data,
   });
+
+  const scheme = useColorScheme();
+  const colors = Colors[scheme ?? "light"];
 
   if (isLoading) {
     return (
@@ -43,48 +48,57 @@ const MyOrderDetail = () => {
 
   return (
     <SafeAreaThemedView style={styles.safeArea}>
-      <ScrollView style={styles.container}>
-        {/* Date and Booking ID */}
+      <ScrollView
+        style={[styles.container, { backgroundColor: colors.background }]}
+      >
         <View style={styles.header}>
-          <Text style={styles.dateText}>
+          <Text style={[styles.dateText, { color: colors.text }]}>
             {DateHelper.formatDateTime(data?.date ?? "")}
           </Text>
           <View style={styles.bookingIdContainer}>
-            <Text style={styles.bookingText}>Order ID</Text>
+            <Text style={[styles.bookingText, { color: colors.text }]}>
+              Order ID
+            </Text>
             <View style={styles.bookingId}>
-              <Text style={styles.idText}>{data?.code}</Text>
+              <Text style={[styles.idText, { color: colors.text }]}>
+                {data?.code}
+              </Text>
             </View>
           </View>
         </View>
 
         {/* Order Summary */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Order Summary</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Order Summary
+          </Text>
         </View>
         {data?.orderDetails.map((item, idx) => {
           return (
-            <>
-              <View style={styles.orderItem} key={idx}>
-                <Text style={styles.itemText}>
+            <React.Fragment key={idx}>
+              <View style={styles.orderItem}>
+                <Text style={[styles.itemText, { color: colors.text }]}>
                   {item.qty}x {item.name}
                 </Text>
-                <Text style={styles.priceText}>
+                <Text style={[styles.priceText, { color: colors.text }]}>
                   {StringHelper.currencyFormat(item.total)}
                 </Text>
               </View>
-              <Text style={styles.subText}>
+              <Text style={[styles.subText, { color: colors.text }]}>
                 {StringHelper.currencyFormat(item.price)}
               </Text>
-            </>
+            </React.Fragment>
           );
         })}
 
         {/* Costs */}
         <View style={styles.costContainer}>
           <View style={styles.discountRow}>
-            <FontAwesome name="money" size={16} color="orange" />
-            <Text style={styles.discountText}>Payment</Text>
-            <Text style={styles.discountValue}>
+            <FontAwesome name="money" size={16} color={colors.primary} />
+            <Text style={[styles.discountText, { color: colors.text }]}>
+              Payment
+            </Text>
+            <Text style={[styles.discountValue, { color: colors.primary }]}>
               {StringHelper.currencyFormat(
                 data?.orderPayment.totalPayment ?? 0
               )}
@@ -92,9 +106,11 @@ const MyOrderDetail = () => {
           </View>
 
           <View style={styles.discountRow}>
-            <FontAwesome name="tag" size={16} color="orange" />
-            <Text style={styles.discountText}>Cashback</Text>
-            <Text style={styles.discountValue}>
+            <FontAwesome name="tag" size={16} color={colors.primary} />
+            <Text style={[styles.discountText, { color: colors.text }]}>
+              Cashback
+            </Text>
+            <Text style={[styles.discountValue, { color: colors.primary }]}>
               {StringHelper.currencyFormat(data?.orderPayment.cashback ?? 0)}
             </Text>
           </View>
@@ -102,7 +118,7 @@ const MyOrderDetail = () => {
 
         {/* Total */}
         <View style={styles.totalContainer}>
-          <Text style={styles.totalText}>Total</Text>
+          <Text style={[styles.totalText, { color: colors.text }]}>Total</Text>
           <Text style={styles.totalAmount}>
             {StringHelper.currencyFormat(data?.total ?? 0)}
           </Text>
@@ -118,7 +134,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#fff",
     padding: 16,
   },
   header: {
@@ -135,7 +150,6 @@ const styles = StyleSheet.create({
   },
   bookingText: {
     fontSize: 14,
-    color: "#666",
   },
   bookingId: {
     flexDirection: "row",
@@ -194,7 +208,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   subText: {
-    color: "#888",
     marginTop: 4,
   },
   costContainer: {
@@ -220,11 +233,9 @@ const styles = StyleSheet.create({
   discountText: {
     flex: 1,
     marginLeft: 5,
-    color: "#666",
   },
   discountValue: {
     fontWeight: "bold",
-    color: "green",
   },
   totalContainer: {
     flexDirection: "row",
@@ -242,15 +253,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#007bff",
-  },
-  pointsContainer: {
-    marginTop: 16,
-    paddingVertical: 8,
-    backgroundColor: "#f8f9fa",
-    alignItems: "center",
-  },
-  pointsText: {
-    color: "#333",
   },
 });
 

@@ -33,11 +33,11 @@ const ProfileScreen = () => {
             color={"white"}
           />
         </View>
-        <ProfileImage code={user?.code} />
+        <ProfileImage code={user?.code} styles={styles.profileImage} />
         <ThemedText style={styles.profileName}>{user?.name}</ThemedText>
         <View
           style={{
-            backgroundColor: "#E6E6E6",
+            backgroundColor: colors.background,
             paddingHorizontal: 16,
             justifyContent: "center",
             alignItems: "center",
@@ -52,7 +52,7 @@ const ProfileScreen = () => {
         </View>
       </View>
 
-      <View style={{ backgroundColor: "#f5f5f5", height: "100%" }}>
+      <View style={{ backgroundColor: colors.background, height: "100%" }}>
         <View style={styles.infoContainer}>
           <View style={styles.infoRow}>
             <MaterialCommunityIcons
@@ -119,6 +119,12 @@ const styles = StyleSheet.create({
   editIcon: {
     position: "absolute",
     right: 22,
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: "#fff",
   },
   profileName: {
     marginTop: 18,

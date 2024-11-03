@@ -17,6 +17,7 @@ export const Colors = {
     tabIconSelected: primary,
     primary: primary,
     grey: "#9D99AC",
+    secondary: "#0a7ea4",
   },
   dark: {
     text: "#ECEDEE",
@@ -27,5 +28,6 @@ export const Colors = {
     tabIconSelected: primary,
     primary: primary,
     grey: "#9D99AC",
+    secondary: "#0a7ea4",
   },
 };

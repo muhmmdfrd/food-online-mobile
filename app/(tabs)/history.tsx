@@ -42,14 +42,16 @@ const HistoryScreen: FC = () => {
   }
 
   return (
-    <ThemedView style={styles.container}>
+    <ThemedView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       {isLoading ? (
         <ThemedView
           style={{
             height: "100%",
             justifyContent: "center",
             alignItems: "center",
-            backgroundColor: "#f5f5f5",
+            backgroundColor: colors.background,
           }}
         >
           <ActivityIndicator size={52} color={colors.primary} />
@@ -136,7 +138,6 @@ const HistoryScreen: FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
     // padding: 16,
   },
   menuList: {

@@ -5,4 +5,5 @@ export type Menu = {
   price: number;
   merchantName: string;
   code?: string;
+  description?: string;
 };

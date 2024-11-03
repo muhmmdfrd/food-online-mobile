@@ -1,21 +1,17 @@
 import { FC, useState } from "react";
-import { Image } from "react-native";
+import { Image, ImageStyle, StyleProp } from "react-native";
 
 type ProfileImageProps = {
   code?: string;
+  styles?: StyleProp<ImageStyle>;
 };
 
-const ProfileImage: FC<ProfileImageProps> = ({ code }) => {
+const ProfileImage: FC<ProfileImageProps> = ({ code, styles }) => {
   const [error, setError] = useState<boolean>(false);
 
   return (
     <Image
-      style={{
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-        backgroundColor: "#fff",
-      }}
+      style={styles}
       source={{
         uri:
           code && !error

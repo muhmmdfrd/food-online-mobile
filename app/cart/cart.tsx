@@ -23,6 +23,7 @@ import { Response } from "@/constants/Response";
 import { router } from "expo-router";
 import { Button, Divider } from "react-native-paper";
 import ChartPaymentModal from "@/modals/ChartPaymentModal";
+import MenuImage from "@/components/MenuImage";
 
 const CartScreen = () => {
   const [cash, setCash] = useState<number>(0);
@@ -143,9 +144,10 @@ const CartScreen = () => {
               data?.items.map((item) => {
                 return (
                   <ThemedView key={item.menuName} style={styles.cartItem}>
-                    <Image
-                      source={{ uri: "https://via.placeholder.com/50" }}
-                      style={styles.cartImage}
+                    <MenuImage
+                      code={item.code}
+                      size={50}
+                      styles={styles.cartImage}
                     />
                     <ThemedView style={styles.cartInfo}>
                       <ThemedText style={styles.cartName}>

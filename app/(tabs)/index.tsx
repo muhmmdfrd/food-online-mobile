@@ -159,7 +159,11 @@ const HomeScreen = () => {
                 }
               >
                 <ThemedView style={styles.menuItem}>
-                  <MenuImage code={item.code} />
+                  <MenuImage
+                    code={item.code}
+                    size={100}
+                    styles={styles.menuImage}
+                  />
                   <ThemedView style={styles.menuInfo}>
                     <ThemedText style={styles.menuName}>{item.name}</ThemedText>
                     <ThemedText style={styles.menuDescription}>
@@ -237,6 +241,11 @@ const styles = StyleSheet.create({
   menuPrice: {
     fontSize: 16,
     marginBottom: 5,
+  },
+  menuImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
   },
   quantityIndicator: {
     position: "absolute",

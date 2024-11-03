@@ -7,4 +7,5 @@ export type CalculateDetailResponse = {
   menuName: string;
   qty: number;
   total: number;
+  code?: string;
 };

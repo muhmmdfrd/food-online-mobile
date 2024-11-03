@@ -1,6 +1,5 @@
 import { Tabs } from "expo-router";
 import React from "react";
-
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -8,9 +7,9 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity } from "react-native";
-import { Image } from "react-native";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { useAuth } from "../context";
+import ProfileImage from "@/components/ProfileImage";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -28,9 +27,9 @@ export default function TabLayout() {
             <SafeAreaThemedView style={styles.safearea}>
               <ThemedView style={styles.header}>
                 <ThemedView style={styles.profile}>
-                  <Image
-                    source={{ uri: "https://via.placeholder.com/50" }}
-                    style={styles.profileImage}
+                  <ProfileImage
+                    code={user?.code}
+                    styles={styles.profileImage}
                   />
                   <ThemedText style={styles.profileName}>
                     {user?.name}
@@ -51,6 +50,20 @@ export default function TabLayout() {
         },
       }}
     >
+      {user?.roleId == 1 && (
+        <Tabs.Screen
+          name="dashboard"
+          options={{
+            title: "Dashboard",
+            tabBarIcon: ({ color, focused }) => (
+              <TabBarIcon
+                name={focused ? "grid" : "grid-outline"}
+                color={color}
+              />
+            ),
+          }}
+        />
+      )}
       <Tabs.Screen
         name="index"
         options={{
