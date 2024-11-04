@@ -1,5 +1,11 @@
 import { ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
+import { StringHelper } from "@/helpers";
+import { Dashboard } from "@/models/dashboard";
+import { ApiResponse } from "@/models/responses/ApiResponse";
+import { getDashboard } from "@/services/DashboardService";
+import { openOrder } from "@/services/OrderService";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { FC } from "react";
 import {
   TouchableOpacity,
@@ -7,38 +13,76 @@ import {
   StyleSheet,
   Text,
   useColorScheme,
+  Alert,
 } from "react-native";
 
 const DashboardScreen: FC = () => {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? "light"];
 
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["open-order"],
+    mutationFn: openOrder,
+    onSuccess: () => {
+      Alert.alert("Success", "Order opened");
+    },
+    onError: (err) => {
+      Alert.alert("Error", err.message);
+    },
+  });
+
+  const { data, isLoading } = useQuery<
+    ApiResponse<Dashboard>,
+    string,
+    Dashboard
+  >({
+    queryKey: ["dashboard"],
+    queryFn: async () => await getDashboard(),
+    select: (response) => {
+      return response.data;
+    },
+  });
+
   return (
     <ThemedView style={styles.container}>
       <View style={styles.row}>
         <View style={[styles.box, { backgroundColor: colors.secondary }]}>
-          <Text style={styles.boxText}>9</Text>
+          <Text style={styles.boxText}>
+            {isLoading ? "..." : data?.orderCount ?? 0}
+          </Text>
           <Text style={styles.boxLabel}>Orders</Text>
         </View>
         <View style={[styles.box, { backgroundColor: colors.primary }]}>
-          <Text style={styles.boxText}>15</Text>
+          <Text style={styles.boxText}>
+            {isLoading ? "..." : data?.menuCount ?? 0}
+          </Text>
           <Text style={styles.boxLabel}>Menus</Text>
         </View>
       </View>
       <View style={styles.row}>
         <View style={[styles.box, { backgroundColor: colors.primary }]}>
-          <Text style={styles.boxText}>8</Text>
+          <Text style={styles.boxText}>
+            {isLoading ? "..." : data?.merchantCount ?? 0}
+          </Text>
           <Text style={styles.boxLabel}>Merchants</Text>
         </View>
         <View style={[styles.box, { backgroundColor: colors.secondary }]}>
-          <Text style={styles.boxText}>Rp.230.000</Text>
+          <Text style={styles.boxText}>
+            {isLoading
+              ? "..."
+              : StringHelper.currencyFormat(data?.totalPayment ?? 0)}
+          </Text>
           <Text style={styles.boxLabel}>Total Payments</Text>
         </View>
       </View>
       <TouchableOpacity
+        disabled={isPending}
         style={[styles.button, { backgroundColor: colors.primary }]}
+        onPress={() => mutate()}
       >
-        <Text style={styles.buttonText}>Open Order</Text>
+        <Text style={styles.buttonText}>
+          {isPending ? "Loading..." : "Open Order"}
+        </Text>
       </TouchableOpacity>
     </ThemedView>
   );

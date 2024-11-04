@@ -30,4 +30,8 @@ const getMyOrderDetail = (
   return get(`orders/user/${userId}/detail/${orderId}`);
 };
 
-export { calculate, createOrder, getMyOrders, getMyOrderDetail };
+const openOrder = (): Promise<ApiResponse<any>> => {
+  return post("orders", {});
+};
+
+export { calculate, createOrder, getMyOrders, getMyOrderDetail, openOrder };
