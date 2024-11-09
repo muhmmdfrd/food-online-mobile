@@ -19,6 +19,7 @@ import DateHelper from "@/helpers/DateHelper";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Loading from "@/components/Loading";
 
 const HistoryScreen: FC = () => {
   const { user } = useAuth();
@@ -46,16 +47,14 @@ const HistoryScreen: FC = () => {
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       {isLoading ? (
-        <ThemedView
-          style={{
+        <Loading
+          styles={{
             height: "100%",
             justifyContent: "center",
             alignItems: "center",
             backgroundColor: colors.background,
           }}
-        >
-          <ActivityIndicator size={52} color={colors.primary} />
-        </ThemedView>
+        />
       ) : data?.length === 0 ? (
         <ThemedView
           style={{

@@ -30,25 +30,30 @@ function AppRoutes() {
         return;
       }
 
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/");
     } else {
       router.replace("/auth/login");
     }
   }, [authorized]);
 
+  const stackOptions = {
+    headerShown: false,
+  };
+
+  const routes = [
+    "(tabs)",
+    "auth",
+    "cart/cart",
+    "menu/detail",
+    "my-order/detail",
+    "+not-found",
+  ];
+
   return (
     <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen name="auth" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="cart/cart"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen name="menu/detail" options={{ headerShown: false }} />
-      <Stack.Screen name="my-order/detail" options={{ headerShown: false }} />
-      <Stack.Screen name="+not-found" />
+      {routes.map((v, i) => (
+        <Stack.Screen key={i} name={v} options={stackOptions} />
+      ))}
     </Stack>
   );
 }

@@ -20,6 +20,7 @@ import { RefreshControl } from "react-native";
 import OrderPersonModal from "@/modals/OrderPersonModal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import Loading from "@/components/Loading";
 
 const ListOrder: FC = () => {
   const [visibleModal, setVisibleModal] = useState<boolean>(false);
@@ -49,15 +50,13 @@ const ListOrder: FC = () => {
     <>
       <ThemedView style={styles.container}>
         {isLoading ? (
-          <ThemedView
-            style={{
+          <Loading
+            styles={{
               height: "100%",
               justifyContent: "center",
               alignItems: "center",
             }}
-          >
-            <ActivityIndicator size={52} />
-          </ThemedView>
+          />
         ) : data.length === 0 ? (
           <ThemedView
             style={{

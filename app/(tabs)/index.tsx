@@ -1,13 +1,8 @@
 import React, { useState } from "react";
 import {
-  Image,
-  TouchableOpacity,
   ScrollView,
   StyleSheet,
-  StyleProp,
-  TouchableNativeFeedback,
   View,
-  ActivityIndicator,
   Alert,
   useColorScheme,
   RefreshControl,
@@ -15,8 +10,7 @@ import {
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { FAB } from "react-native-paper";
-import { useAuth, useCart } from "../context";
-import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
+import { useCart } from "../context";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import { useQuery } from "@tanstack/react-query";
@@ -27,12 +21,10 @@ import { Merchant } from "@/models/merchant";
 import { PagingResponse } from "@/models/responses/PagingResponse";
 import { Menu } from "@/models/menu";
 import { StringHelper } from "@/helpers";
-import { useThemeColor } from "@/hooks/useThemeColor";
 import { router } from "expo-router";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import messaging from "@react-native-firebase/messaging";
 import MenuImage from "@/components/MenuImage";
+import Loading from "@/components/Loading";
 
 const page: PagingRequest = {
   current: 1,
@@ -122,15 +114,13 @@ const HomeScreen = () => {
       </ThemedView>
 
       {loadingMenu ? (
-        <ThemedView
-          style={{
+        <Loading
+          styles={{
             height: "75%",
             justifyContent: "center",
             alignItems: "center",
           }}
-        >
-          <ActivityIndicator size={52} color={primaryColor} />
-        </ThemedView>
+        />
       ) : (
         <ScrollView
           style={styles.menuList}
