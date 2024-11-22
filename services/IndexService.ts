@@ -26,7 +26,7 @@ client.interceptors.response.use(
   (response) => {
     switch (response.data.code) {
       case Response.unauthorizedCode:
-        throw "Unathorized response.";
+        throw "Unathorized.";
       case "1004":
         throw "Data not found.";
       case "4000":
@@ -41,47 +41,48 @@ client.interceptors.response.use(
     const { reject } = Promise;
     switch (err.response?.status) {
       case 401:
-        try {
-          if (err.response.data.code === Response.unauthorizedCode) {
-            return reject(err.response.data.message);
-          }
+        return reject("Unauthorized");
+      // try {
+      //   if (err.response.data.code === Response.unauthorizedCode) {
+      //     return reject(err.response.data.message);
+      //   }
 
-          const user = await AuthHelper.getCurrentUser();
-          const refreshToken = await AuthHelper.getCode();
+      //   const user = await AuthHelper.getCurrentUser();
+      //   const refreshToken = await AuthHelper.getCode();
 
-          const request: RefreshTokenRequest = {
-            code: refreshToken ?? "",
-            userId: user.id,
-          };
+      //   const request: RefreshTokenRequest = {
+      //     code: refreshToken ?? "",
+      //     userId: user.id,
+      //   };
 
-          if (refreshToken == "" || user.id == 0) {
-            return;
-          }
+      //   if (refreshToken == "" || user.id == 0) {
+      //     return;
+      //   }
 
-          const response = await axios
-            .post<ApiResponse<AuthRevokeResponse>>(
-              `${process.env.EXPO_PUBLIC_API_URL}/auth/revoke`,
-              request
-            )
-            .then((d) => d.data);
+      //   const response = await axios
+      //     .post<ApiResponse<AuthRevokeResponse>>(
+      //       `${process.env.EXPO_PUBLIC_API_URL}/auth/revoke`,
+      //       request
+      //     )
+      //     .then((d) => d.data);
 
-          if (response.success) {
-            await AuthHelper.setCode(response.data.code);
-            await AuthHelper.setToken(response.data.token);
+      //   if (response.success) {
+      //     await AuthHelper.setCode(response.data.code);
+      //     await AuthHelper.setToken(response.data.token);
 
-            const value = `Bearer ${response.data.token}`;
-            err.config!.headers.Authorization = value;
+      //     const value = `Bearer ${response.data.token}`;
+      //     err.config!.headers.Authorization = value;
 
-            return client(err.config!);
-          }
+      //     return client(err.config!);
+      //   }
 
-          const { logout } = useAuth();
-          logout();
-          return reject("Unauthorized error.");
-        } catch (err) {
-          const error = err as { message: { message: string } };
-          return reject(error.message.message);
-        }
+      //   const { logout } = useAuth();
+      //   logout();
+      //   return reject("Unauthorized error.");
+      // } catch (err) {
+      //   const error = err as { message: { message: string } };
+      //   return reject(error.message.message);
+      // }
       case undefined:
         return reject("No internet connection.");
       default:

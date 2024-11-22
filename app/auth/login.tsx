@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Alert,
   useColorScheme,
+  Image,
 } from "react-native";
 import { useForm, Controller, SubmitHandler } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
@@ -16,6 +17,7 @@ import { useAuth } from "../context";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { Colors } from "@/constants/Colors";
+import PasswordInput from "@/components/PasswordInput";
 
 const Login: React.FC = () => {
   const {
@@ -48,6 +50,19 @@ const Login: React.FC = () => {
 
   return (
     <ThemedView style={styles.container}>
+      <ThemedView
+        style={{
+          justifyContent: "center",
+          alignItems: "center",
+          marginBottom: 12,
+        }}
+      >
+        <Image
+          source={require("./../../assets/images/logo.png")}
+          style={{ width: 130, height: 100 }}
+          resizeMode={"contain"}
+        />
+      </ThemedView>
       <ThemedText style={[styles.header, { color: primaryColor }]} type="title">
         DapoerGo.
       </ThemedText>
@@ -90,17 +105,12 @@ const Login: React.FC = () => {
         defaultValue=""
         rules={{ required: "Password is required" }}
         render={({ field: { onChange, value } }) => (
-          <TextInput
-            style={[
-              styles.input,
-              { borderColor: primaryColor, color: textColor },
-            ]}
+          <PasswordInput
             cursorColor={primaryColor}
             placeholder="Password"
             placeholderTextColor={greyColor}
             value={value}
             onChangeText={onChange}
-            secureTextEntry
           />
         )}
       />

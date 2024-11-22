@@ -13,10 +13,24 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
 import { Colors } from "@/constants/Colors";
 import ProfileImage from "@/components/ProfileImage";
+import { router } from "expo-router";
+import { ApiResponse } from "@/models/responses/ApiResponse";
+import { User } from "@/models/user";
+import { useQuery } from "@tanstack/react-query";
+import { getById } from "@/services/UserService";
 
 const ProfileScreen = () => {
-  const { user, logout } = useAuth();
+  const { user: current, logout } = useAuth();
   const { clearCart } = useCart();
+
+  const { data: user } = useQuery<ApiResponse<User>, string, User>({
+    queryKey: ["get-user-by-id", current?.id],
+    queryFn: async () => await getById(current?.id ?? 0),
+    select: (response) => {
+      return response.data;
+    },
+    refetchOnMount: true,
+  });
 
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? "light"];
@@ -27,11 +41,19 @@ const ProfileScreen = () => {
     >
       <View style={[styles.header, { backgroundColor: colors.primary }]}>
         <View style={styles.editIcon}>
-          <MaterialCommunityIcons
-            name="account-edit-outline"
-            size={32}
-            color={"white"}
-          />
+          <TouchableOpacity
+            onPress={() => {
+              router.push({
+                pathname: "/profile/update",
+              });
+            }}
+          >
+            <MaterialCommunityIcons
+              name="account-edit-outline"
+              size={32}
+              color={"white"}
+            />
+          </TouchableOpacity>
         </View>
         <ProfileImage code={user?.code} styles={styles.profileImage} />
         <ThemedText style={styles.profileName}>{user?.name}</ThemedText>

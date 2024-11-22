@@ -47,6 +47,7 @@ function AppRoutes() {
     "menu/detail",
     "my-order/detail",
     "+not-found",
+    "profile/update",
   ];
 
   return (
