@@ -153,7 +153,10 @@ const UpdateProfileScreen = () => {
                 placeholder="Name"
                 placeholderTextColor={colors.grey}
                 value={value}
-                onChangeText={onChange}
+                onChangeText={(text) => {
+                  const temp = text.trim();
+                  onChange(temp);
+                }}
                 autoCapitalize="none"
                 editable={!isSubmitting}
               />
@@ -179,7 +182,10 @@ const UpdateProfileScreen = () => {
                 placeholder="Username"
                 placeholderTextColor={colors.grey}
                 value={value}
-                onChangeText={onChange}
+                onChangeText={(text) => {
+                  const temp = text.trim();
+                  onChange(temp);
+                }}
                 autoCapitalize="none"
                 editable={!isSubmitting}
               />
@@ -211,7 +217,10 @@ const UpdateProfileScreen = () => {
                 secureTextEntry
                 placeholderTextColor={colors.grey}
                 value={value}
-                onChangeText={onChange}
+                onChangeText={(text) => {
+                  const temp = text.trim();
+                  onChange(temp);
+                }}
                 autoCapitalize="none"
                 editable={!isSubmitting}
               />
@@ -246,7 +255,10 @@ const UpdateProfileScreen = () => {
                 placeholder="Phone Number"
                 placeholderTextColor={colors.grey}
                 value={value}
-                onChangeText={onChange}
+                onChangeText={(text) => {
+                  const temp = text.trim();
+                  onChange(temp);
+                }}
                 autoCapitalize="none"
                 editable={!isSubmitting}
               />
@@ -280,7 +292,10 @@ const UpdateProfileScreen = () => {
                 cursorColor={colors.primary}
                 placeholderTextColor={colors.grey}
                 value={value}
-                onChangeText={onChange}
+                onChangeText={(text) => {
+                  const temp = text.trim();
+                  onChange(temp);
+                }}
                 autoCapitalize="none"
                 editable={!isSubmitting}
               />
