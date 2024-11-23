@@ -295,7 +295,7 @@ const UpdateProfileScreen = () => {
             onPress={handleSubmit(onSubmit)}
             disabled={mutation.isPending}
           >
-            <Text style={[styles.updateButtonText, { color: colors.text }]}>
+            <Text style={[styles.updateButtonText, { color: "white" }]}>
               {mutation.isPending ? "Loading..." : "Update Profile"}
             </Text>
           </TouchableOpacity>

@@ -36,6 +36,7 @@ const CartScreen = () => {
   }, [cash]);
 
   const scheme = useColorScheme();
+  const colors = Colors[scheme ?? "light"];
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["calculate", cartItems],
@@ -117,7 +118,7 @@ const CartScreen = () => {
           <MaterialCommunityIcons
             name="food-off"
             size={108}
-            color={Colors[scheme ?? "light"].primary}
+            color={colors.primary}
           />
           <ThemedText style={{ marginTop: 8 }}>No items found</ThemedText>
         </ThemedView>
@@ -169,28 +170,37 @@ const CartScreen = () => {
           <Divider />
           <ThemedView style={styles.containerPayment}>
             <ThemedView style={styles.row}>
-              <ThemedText style={[styles.text]}>Payment</ThemedText>
-              <ThemedText style={styles.text}>Cash</ThemedText>
+              <ThemedText style={[styles.text, { color: colors.text }]}>
+                Payment
+              </ThemedText>
+              <ThemedText style={[styles.text, { color: colors.text }]}>
+                Cash
+              </ThemedText>
             </ThemedView>
 
             <ThemedView style={styles.row}>
-              <ThemedText style={styles.text}>Amount Paid</ThemedText>
+              <ThemedText style={[styles.text, { color: colors.text }]}>
+                Amount Paid
+              </ThemedText>
               <ThemedView style={styles.row}>
                 <MaterialCommunityIcons
                   name="pen"
                   size={20}
                   style={{ marginEnd: 4 }}
+                  color={colors.text}
                   onPress={() => setVisibleModal((s) => !s)}
                 />
-                <ThemedText style={styles.text}>
+                <ThemedText style={[styles.text, { color: colors.text }]}>
                   {StringHelper.currencyFormat(cash)}
                 </ThemedText>
               </ThemedView>
             </ThemedView>
 
             <ThemedView style={styles.row}>
-              <ThemedText style={styles.text}>Change</ThemedText>
-              <ThemedText style={styles.text}>
+              <ThemedText style={[styles.text, { color: colors.text }]}>
+                Change
+              </ThemedText>
+              <ThemedText style={[styles.text, { color: colors.text }]}>
                 {StringHelper.currencyFormat(
                   calculateChange(data?.grandTotal ?? 0)
                 )}
@@ -203,9 +213,7 @@ const CartScreen = () => {
             style={[
               styles.confirmButton,
               {
-                backgroundColor: isButtonDisabled()
-                  ? "gray"
-                  : Colors[scheme ?? "light"].primary,
+                backgroundColor: isButtonDisabled() ? "gray" : colors.primary,
               },
             ]}
             onPress={handleOrder}

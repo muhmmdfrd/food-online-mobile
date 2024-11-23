@@ -7,10 +7,7 @@ import { FC, useState } from "react";
 import {
   Alert,
   StyleSheet,
-  ActivityIndicator,
   ScrollView,
-  TouchableNativeFeedback,
-  Image,
   TouchableWithoutFeedback,
   useColorScheme,
 } from "react-native";
@@ -21,9 +18,14 @@ import OrderPersonModal from "@/modals/OrderPersonModal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
 import Loading from "@/components/Loading";
+import ProfileImage from "@/components/ProfileImage";
 
 const ListOrder: FC = () => {
   const [visibleModal, setVisibleModal] = useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = useState<
+    OrderTodayResponse | undefined
+  >();
+
   const {
     data = [],
     isLoading,
@@ -87,15 +89,15 @@ const ListOrder: FC = () => {
               return (
                 <TouchableWithoutFeedback
                   key={item.name}
-                  onPress={() => setVisibleModal((v) => !v)}
+                  onPress={() => {
+                    setVisibleModal((v) => !v);
+                    setSelectedUser(item);
+                  }}
                 >
                   <ThemedView style={styles.menuItem}>
-                    <Image
-                      source={{ uri: "https://via.placeholder.com/100" }}
-                      style={styles.menuImage}
-                    />
+                    <ProfileImage code={item.code} styles={styles.menuImage} />
                     <ThemedView style={styles.menuInfo}>
-                      <ThemedText style={styles.menuName}>
+                      <ThemedText style={[styles.menuName]}>
                         {item.name}
                       </ThemedText>
                       <ThemedText
@@ -116,7 +118,11 @@ const ListOrder: FC = () => {
           </ScrollView>
         )}
       </ThemedView>
-      <OrderPersonModal visible={visibleModal} setVisible={setVisibleModal} />
+      <OrderPersonModal
+        visible={visibleModal}
+        item={selectedUser}
+        setVisible={setVisibleModal}
+      />
     </>
   );
 };
@@ -124,8 +130,6 @@ const ListOrder: FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // padding: 16,
-    backgroundColor: "#f5f5f5",
   },
   menuList: {
     flex: 1,
@@ -135,7 +139,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: 15,
     position: "relative",
-    backgroundColor: "white",
     borderRadius: 16,
     paddingVertical: 12,
     paddingStart: 12,
@@ -149,7 +152,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     justifyContent: "center",
     flex: 1,
-    backgroundColor: "white",
     borderRadius: 16,
     paddingEnd: 24,
   },
@@ -159,7 +161,6 @@ const styles = StyleSheet.create({
   },
   menuDescription: {
     fontSize: 14,
-    color: "#666",
   },
   menuPrice: {
     fontSize: 16,

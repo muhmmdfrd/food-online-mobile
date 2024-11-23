@@ -31,7 +31,10 @@ const ChartPaymentModal: FC<ChartPaymentModalProps> = ({
       <Modal
         visible={visible}
         onDismiss={hideModal}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[
+          styles.container,
+          { backgroundColor: Colors[scheme ?? "light"].background },
+        ]}
       >
         <CurrencyInput
           value={value}
@@ -65,7 +68,7 @@ const ChartPaymentModal: FC<ChartPaymentModalProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: "white", padding: 20, marginHorizontal: 16 },
+  container: { padding: 20, marginHorizontal: 16 },
   button: {
     marginTop: 12,
     paddingVertical: 8,

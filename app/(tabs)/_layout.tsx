@@ -16,7 +16,6 @@ export default function TabLayout() {
   const colors = Colors[colorScheme ?? "light"];
 
   const { user } = useAuth();
-
   return (
     <Tabs
       screenOptions={{
@@ -28,7 +27,7 @@ export default function TabLayout() {
               <ThemedView style={styles.header}>
                 <ThemedView style={styles.profile}>
                   <ProfileImage
-                    code={user?.code}
+                    code={user?.code ?? undefined}
                     styles={styles.profileImage}
                   />
                   <ThemedText style={styles.profileName}>
@@ -50,20 +49,19 @@ export default function TabLayout() {
         },
       }}
     >
-      {user?.roleId == 1 && (
-        <Tabs.Screen
-          name="dashboard"
-          options={{
-            title: "Dashboard",
-            tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon
-                name={focused ? "grid" : "grid-outline"}
-                color={color}
-              />
-            ),
-          }}
-        />
-      )}
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          href: user?.roleId != 1 ? null : "/(tabs)/dashboard",
+          title: "Dashboard",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "grid" : "grid-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="index"
         options={{
