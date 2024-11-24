@@ -39,6 +39,11 @@ client.interceptors.response.use(
   },
   async (err: AxiosError<ApiResponse<any>>) => {
     const { reject } = Promise;
+
+    if (err.response?.data.code == "4000") {
+      return reject(err.response.data.message);
+    }
+
     switch (err.response?.status) {
       case 401:
         return reject("Unauthorized");

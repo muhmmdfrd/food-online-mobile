@@ -4,25 +4,50 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ActivityIndicator,
+  TouchableOpacity,
   useColorScheme,
+  Alert,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import { SafeAreaThemedView } from "@/components/SafeAreaThemedView";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLocalSearchParams } from "expo-router";
-import { getMyOrderDetail } from "@/services/OrderService";
-import { ThemedView } from "@/components/ThemedView";
+import { getMyOrderDetail, updatePaymentStatus } from "@/services/OrderService";
 import DateHelper from "@/helpers/DateHelper";
 import { StringHelper } from "@/helpers";
 import { Colors } from "@/constants/Colors";
+import Loading from "@/components/Loading";
+import { ThemedView } from "@/components/ThemedView";
+import { PaymentUpdateStatusRequest } from "@/models/requests/PaymentUpdateStatusRequest";
+import { ApiResponse } from "@/models/responses/ApiResponse";
+import { Response } from "@/constants/Response";
 
 const MyOrderDetail = () => {
   const { userId, orderId } = useLocalSearchParams();
-  const { data, isLoading, refetch, isError, error } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["my-order-history-detail", userId, orderId],
     queryFn: async () => await getMyOrderDetail(+userId, +orderId),
     select: (data) => data.data,
+  });
+
+  const mutation = useMutation<
+    ApiResponse<number>,
+    string,
+    PaymentUpdateStatusRequest
+  >({
+    mutationFn: updatePaymentStatus,
+    onSuccess: (response) => {
+      if (response.code === Response.successCode) {
+        Alert.alert("Sucess", response.message);
+        refetch();
+        return;
+      }
+
+      Alert.alert("Error", response.message);
+    },
+    onError: (err: string) => {
+      Alert.alert("Failed", err ?? "Something went wrong!");
+    },
   });
 
   const scheme = useColorScheme();
@@ -30,15 +55,13 @@ const MyOrderDetail = () => {
 
   if (isLoading) {
     return (
-      <ThemedView
-        style={{
+      <Loading
+        styles={{
           height: "100%",
           justifyContent: "center",
           alignItems: "center",
         }}
-      >
-        <ActivityIndicator size={52} />
-      </ThemedView>
+      />
     );
   }
 
@@ -46,11 +69,36 @@ const MyOrderDetail = () => {
     return;
   }
 
+  const handleConfirmOrder = () => {
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you have received your order and your change?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            const request: PaymentUpdateStatusRequest = {
+              userId: data!.userId,
+              orderId: data!.orderId,
+            };
+
+            mutation.mutate(request);
+          },
+        },
+      ]
+    );
+  };
+
   return (
     <SafeAreaThemedView style={styles.safeArea}>
       <ScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
       >
+        {/* Header */}
         <View style={styles.header}>
           <Text style={[styles.dateText, { color: colors.text }]}>
             {DateHelper.formatDateTime(data?.date ?? "")}
@@ -104,7 +152,6 @@ const MyOrderDetail = () => {
               )}
             </Text>
           </View>
-
           <View style={styles.discountRow}>
             <FontAwesome name="tag" size={16} color={colors.primary} />
             <Text style={[styles.discountText, { color: colors.text }]}>
@@ -119,124 +166,64 @@ const MyOrderDetail = () => {
         {/* Total */}
         <View style={styles.totalContainer}>
           <Text style={[styles.totalText, { color: colors.text }]}>Total</Text>
-          <Text style={styles.totalAmount}>
+          <Text style={[styles.totalAmount, { color: colors.primary }]}>
             {StringHelper.currencyFormat(data?.total ?? 0)}
           </Text>
         </View>
       </ScrollView>
+
+      {data?.orderPayment.statusId == 0 && (
+        <ThemedView style={styles.footer}>
+          <TouchableOpacity
+            style={[styles.confirmButton, { backgroundColor: colors.primary }]}
+            onPress={handleConfirmOrder}
+            disabled={mutation.isPending}
+          >
+            <Text style={styles.confirmButtonText}>Order Received</Text>
+          </TouchableOpacity>
+        </ThemedView>
+      )}
     </SafeAreaThemedView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  header: {
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-    paddingBottom: 10,
-  },
-  dateText: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  bookingIdContainer: {
-    marginTop: 10,
-  },
-  bookingText: {
-    fontSize: 14,
-  },
+  safeArea: { flex: 1 },
+  container: { flex: 1, padding: 16 },
+  header: { borderBottomWidth: 1, borderColor: "#ddd", paddingBottom: 10 },
+  dateText: { fontSize: 16, fontWeight: "bold" },
+  bookingIdContainer: { marginTop: 10 },
+  bookingText: { fontSize: 14 },
   bookingId: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  idText: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  deliveryContainer: {
-    marginVertical: 16,
-  },
-  restaurantName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  deliveredText: {
-    color: "#888",
-  },
-  addressContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-  },
-  addressText: {
-    marginLeft: 10,
-    color: "#333",
-  },
+  idText: { fontSize: 14, fontWeight: "bold" },
   section: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
     marginTop: 16,
     borderBottomWidth: 1,
     borderColor: "#ddd",
     paddingBottom: 8,
   },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  reorderText: {
-    color: "#007bff",
-  },
+  sectionTitle: { fontSize: 16, fontWeight: "bold" },
   orderItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 16,
   },
-  itemText: {
-    fontSize: 14,
-  },
-  priceText: {
-    fontSize: 14,
-    fontWeight: "bold",
-  },
-  subText: {
-    marginTop: 4,
-  },
-  costContainer: {
-    marginTop: 16,
-  },
-  costRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginVertical: 4,
-  },
-  costLabel: {
-    color: "#666",
-  },
-  costValue: {
-    fontWeight: "bold",
-  },
+  itemText: { fontSize: 14 },
+  priceText: { fontSize: 14, fontWeight: "bold" },
+  subText: { marginTop: 4 },
+  costContainer: { marginTop: 16 },
   discountRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginVertical: 4,
   },
-  discountText: {
-    flex: 1,
-    marginLeft: 5,
-  },
-  discountValue: {
-    fontWeight: "bold",
-  },
+  discountText: { flex: 1, marginLeft: 5 },
+  discountValue: { fontWeight: "bold" },
   totalContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -245,15 +232,19 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: "#ddd",
   },
-  totalText: {
-    fontSize: 16,
-    fontWeight: "bold",
+  totalText: { fontSize: 16, fontWeight: "bold" },
+  totalAmount: { fontSize: 16, fontWeight: "bold" },
+  footer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderColor: "#ddd",
   },
-  totalAmount: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#007bff",
+  confirmButton: {
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
   },
+  confirmButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });
 
 export default MyOrderDetail;

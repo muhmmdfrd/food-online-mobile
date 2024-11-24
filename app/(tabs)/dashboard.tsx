@@ -15,10 +15,13 @@ import {
   useColorScheme,
   Alert,
 } from "react-native";
+import { useAuth } from "../context";
+import { ThemedText } from "@/components/ThemedText";
 
 const DashboardScreen: FC = () => {
   const scheme = useColorScheme();
   const colors = Colors[scheme ?? "light"];
+  const { user } = useAuth();
 
   const { mutate, isPending } = useMutation({
     mutationKey: ["open-order"],
@@ -31,11 +34,26 @@ const DashboardScreen: FC = () => {
     },
   });
 
+  if (user?.id != 1) {
+    return (
+      <ThemedView
+        style={{
+          height: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ThemedText>Dashboard Forbidden for customer</ThemedText>
+      </ThemedView>
+    );
+  }
+
   const { data, isLoading } = useQuery<
     ApiResponse<Dashboard>,
     string,
     Dashboard
   >({
+    enabled: user?.roleId == 1,
     queryKey: ["dashboard"],
     queryFn: async () => await getDashboard(),
     select: (response) => {

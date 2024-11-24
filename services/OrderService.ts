@@ -3,9 +3,10 @@ import {
   OrderDetailRequest,
 } from "@/models/requests/OrderDetailRequest";
 import { ApiResponse } from "@/models/responses/ApiResponse";
-import { get, post } from "./IndexService";
+import { get, post, put } from "./IndexService";
 import { CalculateResponse } from "@/models/responses/CalculateResponse";
 import { OrderDetailHistoryResponse } from "@/models/responses/OrderDetailHistoryResponse";
+import { PaymentUpdateStatusRequest } from "@/models/requests/PaymentUpdateStatusRequest";
 
 const calculate = (
   items: OrderDetailItem[]
@@ -34,4 +35,17 @@ const openOrder = (): Promise<ApiResponse<any>> => {
   return post("orders", {});
 };
 
-export { calculate, createOrder, getMyOrders, getMyOrderDetail, openOrder };
+const updatePaymentStatus = (
+  request: PaymentUpdateStatusRequest
+): Promise<ApiResponse<number>> => {
+  return put("orders/payment", request);
+};
+
+export {
+  calculate,
+  createOrder,
+  getMyOrders,
+  getMyOrderDetail,
+  openOrder,
+  updatePaymentStatus,
+};

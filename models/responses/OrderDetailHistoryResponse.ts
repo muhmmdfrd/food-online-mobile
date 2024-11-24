@@ -1,4 +1,6 @@
 export type OrderDetailHistoryResponse = {
+  orderId: number;
+  userId: number;
   code: string;
   date: string;
   total: number;
@@ -16,4 +18,5 @@ type item = {
 type payment = {
   totalPayment: number;
   cashback: number;
+  statusId: number;
 };

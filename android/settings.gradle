@@ -44,7 +44,7 @@ if (getRNMinorVersion() >= 75) {
   }
 }
 
-rootProject.name = 'food-online'
+rootProject.name = 'Dapoergo'
 
 dependencyResolutionManagement {
   versionCatalogs {

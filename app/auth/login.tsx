@@ -123,6 +123,7 @@ const Login: React.FC = () => {
       <TouchableOpacity
         style={[styles.button, { backgroundColor: primaryColor }]}
         onPress={handleSubmit(onSubmit)}
+        disabled={mutation.isPending}
       >
         <ThemedText style={styles.buttonText}>
           {mutation.isPending ? "Logging in..." : "Login"}
