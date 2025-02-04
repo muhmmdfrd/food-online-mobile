@@ -11,8 +11,22 @@ const setToken = async (token: string) => {
 };
 
 const getCurrentUser = async (): Promise<User> => {
-  const json = (await StorageHelper.getData(Storage.currentUser)) ?? "";
-  return JSON.parse(json) as User;
+  try {
+    const json = (await StorageHelper.getData(Storage.currentUser)) ?? "";
+    return JSON.parse(json) as User;
+  } catch (err) {
+    const initialUser: User = {
+      id: 0,
+      name: "",
+      positionId: 0,
+      positionName: "",
+      roleId: 0,
+      roleName: "",
+      username: "",
+    };
+
+    return initialUser;
+  }
 };
 
 const setCurrentUser = async (value: User) => {
